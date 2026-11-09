@@ -2,16 +2,73 @@ const $ = (s) => document.querySelector(s);
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const token = (v) => { const h = getComputedStyle(document.documentElement).getPropertyValue(v).trim(); return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); };
 
-/* ---- a small WebGL runner for Forme's shaders (src/registry/shader-canvas.tsx): renders
-   only while on screen and the tab is visible, at most ~30fps; one still frame with
-   reduced motion. ---- */
-function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer, hoverable = false, resized, each } = {}) {
+/* ---- ASCII graphics. A tiny WebGL runner draws a scene per character cell and picks a real
+   JetBrains Mono character for each cell's brightness, from a ramp measured at load: every
+   candidate character is drawn, its ink counted, and the ramp sorted by coverage. ---- */
+const RAMP_CHARS = " .`'\":,-~;^_=+<>*!?/|\\()[]{}#%&8@$";
+const CELL_CSS = [5, 9];
+function buildAtlas(r) {
+  const cw = Math.round(CELL_CSS[0] * r), ch = Math.round(CELL_CSS[1] * r);
+  const probe = document.createElement("canvas"), pc = probe.getContext("2d", { willReadFrequently: true });
+  probe.width = cw; probe.height = ch;
+  const font = `${Math.round(ch * 0.95)}px "JetBrains Mono", ui-monospace, monospace`;
+  pc.font = font; pc.textAlign = "center"; pc.textBaseline = "middle"; pc.fillStyle = "#fff";
+  const scored = [...new Set(RAMP_CHARS)].map((chr) => {
+    pc.clearRect(0, 0, cw, ch); pc.fillText(chr, cw / 2, ch / 2 + 0.5);
+    const d = pc.getImageData(0, 0, cw, ch).data; let ink = 0;
+    for (let i = 3; i < d.length; i += 4) ink += d[i];
+    return [chr, ink];
+  }).sort((a, b) => a[1] - b[1]);
+  // keep characters with distinct coverage, evenly spaced from blank to densest
+  const max = scored[scored.length - 1][1], ramp = [];
+  let lastInk = -1;
+  for (const [chr, ink] of scored) if (ink - lastInk > max / 40 || ink === 0) { ramp.push(chr); lastInk = ink; }
+  const glyphs = [...ramp, ".", "+", "*"]; // the ramp, then the three star characters
+  const atlas = document.createElement("canvas"), ac = atlas.getContext("2d");
+  atlas.width = cw * glyphs.length; atlas.height = ch;
+  ac.font = font; ac.textAlign = "center"; ac.textBaseline = "middle"; ac.fillStyle = "#fff";
+  glyphs.forEach((chr, i) => ac.fillText(chr, i * cw + cw / 2, ch / 2 + 0.5));
+  return { atlas, levels: ramp.length, total: glyphs.length, cell: [cw, ch] };
+}
+
+const GLSL_COMMON = `precision highp float;
+uniform vec2 u_resolution; uniform float u_time; uniform float u_ratio; uniform float u_scroll;
+uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
+uniform sampler2D u_atlas; uniform float u_levels; uniform float u_total; uniform vec2 u_cell;
+float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+float ridge(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*(1.-abs(noise(p)*2.-1.));p=p*2.1+3.1;a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+// a real font character for this cell's brightness
+float glyphAt(float i){
+ vec2 f=fract(gl_FragCoord.xy/u_cell);
+ return texture2D(u_atlas,vec2((i+f.x)/u_total,1.-f.y)).a;
+}
+float ascii(float lum){ return glyphAt(floor(clamp(lum,0.,.999)*u_levels)); }
+// stars always draw as . + or *, by brightness
+float starGlyph(float b){ return glyphAt(u_levels+(b<.45?0.:b<.8?1.:2.)); }
+// stars with a realistic spread: many faint, a few bright, slightly different colours
+vec4 stars(vec2 cell,float density,float t){
+ float h=hash(cell);
+ float on=step(1.-density,h);
+ float mag=pow(hash(cell+7.7),6.);
+ float tw=.8+.2*sin(t*(1.+h*3.)+h*90.);
+ float b=on*(.18+.82*mag)*tw;
+ vec3 tint=mix(vec3(.75,.85,1.),vec3(1.,.9,.75),hash(cell+3.3));
+ return vec4(tint,b);
+}
+`;
+
+function shader(canvas, fragment, { ratio = 1.5, speed = 1, start = 0, tint, size, resized, each } = {}) {
   const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
   if (!gl) return;
-  const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s)); return s; };
   const prog = gl.createProgram();
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}"));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragment));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, GLSL_COMMON + fragment));
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
   gl.useProgram(prog);
@@ -20,42 +77,30 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const U = (n) => gl.getUniformLocation(prog, n);
-  const mouse = [0.5, 0.5], target = [0.5, 0.5];
-  let visible = true, last = 0, hover = 0, hovering = !hoverable;
-  const draw = (ms) => {
-    mouse[0] += (target[0] - mouse[0]) * 0.3; mouse[1] += (target[1] - mouse[1]) * 0.3;
-    hover += ((hovering ? 1 : 0) - hover) * 0.12;
-    gl.uniform2f(U("u_mouse"), mouse[0], mouse[1]);
-    gl.uniform1f(U("u_hover"), hover);
-    gl.uniform1f(U("u_time"), start + ms / 1000 * speed);
-    if (each) each(set);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-  };
+  const set = (n, v) => typeof v === "number" ? gl.uniform1f(U(n), v) : v.length === 2 ? gl.uniform2f(U(n), ...v) : gl.uniform3f(U(n), ...v);
+  const r = Math.min(devicePixelRatio || 1, ratio);
+  // the character atlas
+  const { atlas, levels, total, cell } = buildAtlas(r);
+  gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.uniform1i(U("u_atlas"), 0); set("u_levels", levels); set("u_total", total); set("u_cell", cell); set("u_ratio", r);
+  let visible = true, last = 0;
+  const draw = (ms) => { set("u_time", start + ms / 1000 * speed); if (each) each(set); gl.drawArrays(gl.TRIANGLES, 0, 6); };
   const resize = () => {
-    const r = Math.min(devicePixelRatio || 1, ratio), [w, h] = size();
+    const [w, h] = size();
     canvas.width = Math.round(w * r); canvas.height = Math.round(h * r);
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.uniform2f(U("u_resolution"), canvas.width, canvas.height);
-    gl.uniform1f(U("u_ratio"), r);
+    set("u_resolution", [canvas.width, canvas.height]);
     if (resized) resized(set, r);
     draw(performance.now());
   };
-  const set = (n, v) => typeof v === "number" ? gl.uniform1f(U(n), v) : v.length === 2 ? gl.uniform2f(U(n), ...v) : v.length === 3 ? gl.uniform3f(U(n), ...v) : gl.uniform3fv(U(n), v);
-  const apply = () => tint(set);
-  const recolor = () => { apply(); draw(performance.now()); };
-  apply();
-  resize();
+  tint(set); resize();
   addEventListener("resize", resize);
-  addEventListener("theme-change", recolor);
-  if (pointer) {
-    pointer.addEventListener("pointermove", (e) => {
-      const b = pointer === window ? { left: 0, top: 0, width: innerWidth, height: innerHeight } : pointer.getBoundingClientRect();
-      target[0] = (e.clientX - b.left) / b.width; target[1] = 1 - (e.clientY - b.top) / b.height;
-      if (!hovering) { mouse[0] = target[0]; mouse[1] = target[1]; }
-      hovering = true;
-    });
-    (pointer === window ? document.documentElement : pointer).addEventListener("pointerleave", () => { hovering = false; });
-  }
+  addEventListener("theme-change", () => { tint(set); draw(performance.now()); });
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(canvas);
   if (REDUCED) return;
   (function loop(ms) {
@@ -65,194 +110,155 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   })(0);
 }
 
-const SPACE = `precision mediump float;
-uniform vec2 u_resolution; uniform float u_time; uniform float u_ratio; uniform float u_scroll;
-uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
+const themeTint = (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); };
+
+/* ---- behind the page: a night sky. A ringed planet with a moon on the left (lighting,
+   ringlets, the Cassini gap and both shadows follow Forme's Planet shader), a spiral galaxy
+   with dust lanes over a nebula on the right, three depths of stars and the odd shooting star.
+   Layers slide at their own speeds as the page scrolls. ---- */
+const SKY = `
 uniform vec2 u_left; uniform vec2 u_right; uniform float u_margin;
-float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
-float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}return v;}
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
-// Glyphs drawn from simple shapes, densest last: . : - + x # @
-float glyph(vec2 g, float level){
- vec2 d=abs(g-.5);
- float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
- if(level<1.) return 0.;
- if(level<2.) return dot1;
- if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
- float h=step(d.y,.06)*step(d.x,.32);
- if(level<4.) return h;
- float v=step(d.x,.08)*step(d.y,.3);
- if(level<5.) return max(h,v);
- vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
- vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
- float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
- if(level<6.) return max(x,h);
- float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
- if(level<7.) return hash2;
- return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
+const vec3 L=vec3(.62,.42,.66);
+float ringProfile(float r){
+ float c=smoothstep(.0,.05,r)*smoothstep(.2,.16,r)*.35;
+ float b=smoothstep(.16,.2,r)*smoothstep(.6,.58,r)*(.85+.15*sin(r*60.));
+ float a=smoothstep(.65,.67,r)*smoothstep(1.,.97,r)*.62*(1.-.8*smoothstep(.85,.86,r)*smoothstep(.88,.87,r));
+ return c+b+a;
 }
-
-
 void main(){
- vec2 CELL=floor(vec2(6.,10.)*u_ratio+.5);
- vec2 cell=floor(gl_FragCoord.xy/CELL);
- vec2 c=(cell+.5)*CELL;
+ vec2 cell=floor(gl_FragCoord.xy/u_cell), c=(cell+.5)*u_cell;
  float t=u_time, sc=u_scroll*u_ratio;
- vec3 L=normalize(vec3(.6,.5,.62));
- float lum=0.; vec3 col=u_text; float w=0.;
+ vec3 Ld=normalize(L);
+ float lum=0.; vec3 col=u_text; float star=0.;
 
- // stars: three depths that drift and slide with scroll at different speeds
+ // three depths of stars, sliding with time and scroll
  for(int k=0;k<3;k++){
   float fk=float(k);
-  vec2 off=vec2(t*(2.+fk*3.),sc*(.04+fk*.06))*u_ratio;
-  vec2 sc2=floor((c+off)/CELL);
-  float h=hash(sc2+fk*31.7);
-  float on=step(.986-fk*.004,h);
-  float tw=.55+.45*sin(t*(1.+fk)+h*120.);
-  float b=on*tw*(.28+fk*.22);
-  if(b>lum){lum=b; col=mix(u_text,u_index,step(.5,fract(h*13.))*.5);}
+  vec2 off=vec2(t*(1.5+fk*2.5),sc*(.03+fk*.05))*u_ratio;
+  vec4 s=stars(floor((c+off)/u_cell)+fk*41.3,.012+fk*.01,t);
+  if(s.a>lum){lum=s.a;star=s.a;col=mix(u_text,s.rgb*u_text*1.15,.5);}
  }
 
- // left: a ringed planet with a moon, lit from the page's side, rising slowly as you scroll
- float R=u_margin*.34;
- vec2 P=u_left+vec2(0.,sc*.12);
- float tilt=-.32;
- vec2 q=rot(tilt)*((c-P)/R);
- vec3 Lp=vec3(rot(tilt)*L.xy,L.z);
+ // the planet
+ float Rp=u_margin*.3;
+ vec2 P=u_left+vec2(0.,sc*.1);
+ const float TILT=-.32, RS=.22;
+ vec2 q=rot(TILT)*((c-P)/Rp);
+ vec3 Lp=vec3(rot(TILT)*Ld.xy,Ld.z);
+ const vec3 RD=vec3(0.,.22,-.9755), RN=vec3(0.,.9755,.22);
  float r2=dot(q,q);
- // the ring: a flat ellipse from 1.35R to 2.3R with a dark gap, drawn behind or in front
- float e=length(vec2(q.x,q.y/.26));
- float rr=(e-1.35)/(2.3-1.35);
- float ring=0.;
- if(rr>0.&&rr<1.) ring=smoothstep(0.,.06,rr)*smoothstep(1.,.92,rr)*(.75+.25*sin(rr*30.))*(1.-.85*step(.56,rr)*step(rr,.63));
- bool ringFront=q.y<0.;
- if(ring>0.&&!ringFront&&r2>1.){lum=ring*.55; col=u_index;}
+ float e=length(vec2(q.x,q.y/RS)), ringR=(e-1.25)/(2.3-1.25);
+ float ring=(ringR>0.&&ringR<1.)?ringProfile(ringR):0.;
+ bool behind=q.y>0.&&r2<1.;
  if(r2<1.){
-  vec3 n=vec3(q,sqrt(1.-r2));
-  float diff=clamp(dot(n,Lp),0.,1.);
-  float bands=sin(q.y*7.+fbm(vec2(q.x*1.5+t*.02,q.y*4.))*1.8);
-  float rim=pow(1.-n.z,3.)*.35;
-  float b=.05+.9*pow(diff,.8)*(.88+.12*bands)+rim*diff;
-  lum=b; col=mix(u_text,u_color,.35+.2*bands);
+  float z=sqrt(1.-r2);
+  vec3 n=vec3(q,z);
+  float diff=smoothstep(-.06,.55,dot(n,Lp));
+  float lat=q.y, lon=atan(q.x,z)+t*.02;
+  float b=sin(lat*8.+fbm(vec2(lon*1.5,lat*3.)+t*.01)*1.3)*.5+sin(lat*21.)*.12;
+  float shade=1.;
+  float t1=-dot(n,RN)/dot(Lp,RN);
+  if(t1>0.){vec3 X=n+Lp*t1;float rr=(length(vec2(X.x,dot(X,RD)))-1.25)/(2.3-1.25);if(rr>0.&&rr<1.)shade=1.-.7*ringProfile(rr)*smoothstep(0.,.25,diff);}
+  lum=(.04+.9*diff)*pow(z,.35)*shade*(.82+.18*b);
+  col=mix(u_text,u_color,.45+.25*b);
+ } else {
+  float d=sqrt(r2)-1.;
+  lum=max(lum,exp(-d*14.)*.22*max(dot(vec3(rot(-TILT)*normalize(q),0.),Ld),.15));
  }
- if(ring>0.&&ringFront){
-  // where the ring crosses in front of the planet's lit face it reads brighter
-  float b=ring*(r2<1.?.95:.7);
-  lum=max(lum*.25,b); col=u_index;
+ if(!behind&&ring>0.){
+  vec3 Pr=vec3(q.x,0.,0.)+RD*(q.y/RS);
+  float bb=dot(Pr,Lp), closest=sqrt(max(dot(Pr,Pr)-bb*bb,0.));
+  float ps=1.-.85*(1.-smoothstep(.93,1.05,closest))*smoothstep(0.,-.2,bb);
+  float rl=ring*.95*ps;
+  lum=mix(lum,rl,clamp(ring*1.6,0.,1.));
+  col=mix(col,mix(u_index,u_text,.35),clamp(ring*1.6,0.,1.));
  }
- // a soft halo
- float pr=sqrt(r2);
- if(pr>1.) lum=max(lum,exp(-(pr-1.)*5.)*.16);
- // a moon on a slow orbit
- vec2 M=P+vec2(cos(t*.06+1.),sin(t*.06+1.)*.3)*R*2.9;
- vec2 mq=(c-M)/(R*.2);
- if(dot(mq,mq)<1.){vec3 mn=vec3(mq,sqrt(1.-dot(mq,mq))); lum=.05+.85*clamp(dot(mn,L),0.,1.); col=u_text;}
+ // a moon
+ vec2 M=P+vec2(cos(t*.05+1.),sin(t*.05+1.)*.3)*Rp*2.8;
+ vec2 mq=(c-M)/(Rp*.18);
+ float m2=dot(mq,mq);
+ if(m2<1.){vec3 mn=vec3(mq,sqrt(1.-m2));lum=(.03+.9*smoothstep(-.05,.6,dot(mn,Ld)))*(.85+.15*fbm(mq*3.));col=u_text;}
 
- // right: a spiral galaxy over a faint nebula, sliding a little slower than the page
- vec2 G=u_right+vec2(0.,sc*.07);
- vec2 g=rot(.55)*((c-G)/(u_margin*1.15)); g.y*=1.8;
+ // the galaxy: bulge, two arms with dust lanes, pink star-forming knots
+ vec2 G=u_right+vec2(0.,sc*.06);
+ vec2 g=rot(.6)*((c-G)/(u_margin*1.05)); g.y*=2.1;
  float r=length(g), a=atan(g.y,g.x);
- float arms=pow(.5+.5*cos(2.*a-5.5*log(r+.05)+t*.12),3.);
- float core=exp(-r*r*30.);
- float gal=exp(-r*2.)*(.2+.85*arms)*(.5+.6*fbm(g*4.+t*.05))+core*1.3;
- if(gal>lum){lum=gal; col=mix(u_color,u_text,clamp(core*1.5,0.,1.));}
- float neb=smoothstep(.45,.9,fbm((c-G)/u_resolution.y*2.6+vec2(t*.02,0.)))*exp(-r*.6)*.35;
- if(neb>lum){lum=neb; col=u_index;}
+ float sp=2.*a-6.*log(r+.04)+t*.05;
+ float arms=pow(.5+.5*cos(sp),2.5);
+ float lanes=pow(.5+.5*cos(sp-.9),6.)*smoothstep(.05,.25,r);
+ float disk=exp(-r*2.6)*(.25+.8*arms)*(.55+.55*fbm(g*6.))*(1.-.7*lanes);
+ float bulge=exp(-r*r*45.)*1.1;
+ float knots=step(.8,fbm(g*14.+3.))*arms*exp(-r*2.)*.6;
+ float gal=disk+bulge+knots;
+ if(gal>lum*.9){lum=max(lum,gal);col=mix(mix(u_color,u_text,clamp(bulge*1.4,0.,1.)),u_index,clamp(knots*2.,0.,1.));}
+ // a nebula behind it
+ vec2 nq=(c-G)/u_resolution.y;
+ float neb=smoothstep(.42,.85,fbm(nq*3.4+vec2(t*.008,0.)))*(1.-.6*ridge(nq*6.))*exp(-dot(nq,nq)*5.)*.45;
+ if(neb>lum){lum=neb;col=mix(u_index,u_color,fbm(nq*5.));}
 
- // a shooting star every few seconds, in one margin or the other
- float per=6.5, k=floor(t/per), ph=fract(t/per);
- float hk=hash(vec2(k,7.3));
- vec2 A=vec2(mix(u_left.x,u_right.x,step(.5,hk))+(hash(vec2(k,1.1))-.5)*u_margin, u_resolution.y*(.55+.4*hash(vec2(k,2.2))));
- vec2 dir=normalize(vec2(mix(-1.,1.,step(.5,hash(vec2(k,3.3)))),-.55));
- float len=u_margin*1.2, head=clamp(ph/.12,0.,1.)*len;
- vec2 rel=c-A; float along=dot(rel,dir), across=length(rel-dir*along);
- float trail=(ph<.16)?step(across,CELL.y*.6)*smoothstep(head-len*.45,head,along)*step(along,head)*(1.-ph/.16):0.;
- if(trail>lum){lum=trail; col=u_text;}
+ // a shooting star every few seconds
+ float per=7.5, k=floor(t/per), ph=fract(t/per);
+ vec2 A=vec2(mix(u_left.x,u_right.x,step(.5,hash(vec2(k,7.3))))+(hash(vec2(k,1.1))-.5)*u_margin,u_resolution.y*(.55+.4*hash(vec2(k,2.2))));
+ vec2 dir=normalize(vec2(mix(-1.,1.,step(.5,hash(vec2(k,3.3)))),-.5));
+ float len=u_margin*1.3, head=clamp(ph/.1,0.,1.)*len;
+ vec2 rel=c-A; float al=dot(rel,dir), ac=length(rel-dir*al);
+ float trail=ph<.14?step(ac,u_cell.y*.55)*smoothstep(head-len*.5,head,al)*step(al,head)*(1.-ph/.14):0.;
+ if(trail>lum){lum=trail;col=u_text;}
 
- float level=floor(pow(clamp(lum,0.,1.),.75)*7.99);
- float gl=glyph(fract(gl_FragCoord.xy/CELL),level);
- float alpha=gl*clamp(.25+lum,0.,1.);
- gl_FragColor=vec4(mix(u_bg,col,alpha),1.);
+ // a cell still held by a star (nothing brighter drew over it) uses a star character
+ float ch=(star>0.&&star>=lum)?starGlyph(star):ascii(pow(lum,.8));
+ gl_FragColor=vec4(mix(u_bg,col,ch*clamp(.35+lum,0.,1.)),1.);
 }`;
 
-/* ---- behind the page: an ASCII night sky, drawn as glyphs in a shader (glyph set from
-   Forme's Planet shader). A ringed planet with a moon in the left margin, a spiral galaxy
-   over a nebula in the right, three depths of stars, a shooting star every few seconds.
-   Scrolling slides each layer at its own speed. ---- */
-shader($("#contours"), SPACE, {
-  ratio: 1.5, speed: 1, start: 40,
-  size: () => [innerWidth, innerHeight],
-  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); },
-  resized: (set, r) => {
-    const col = $("main.col").getBoundingClientRect(), m = Math.max(col.left, innerWidth - col.right, 160);
-    set("u_margin", m * r);
-    set("u_left", [Math.max(col.left / 2, 90) * r, innerHeight * 0.42 * r]);
-    set("u_right", [Math.min((col.right + innerWidth) / 2, innerWidth - 90) * r, innerHeight * 0.62 * r]);
-  },
-  each: (set) => set("u_scroll", scrollY),
-});
-
-/* ---- the header: the Milky Way in ASCII, a band of star clouds cut by dust lanes ---- */
 const banner = $(".banner");
-shader($("#milky"), `precision mediump float;
-uniform vec2 u_resolution; uniform float u_time; uniform float u_ratio; uniform float u_scroll;
-uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
-float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
-float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}return v;}
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
-// Glyphs drawn from simple shapes, densest last: . : - + x # @
-float glyph(vec2 g, float level){
- vec2 d=abs(g-.5);
- float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
- if(level<1.) return 0.;
- if(level<2.) return dot1;
- if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
- float h=step(d.y,.06)*step(d.x,.32);
- if(level<4.) return h;
- float v=step(d.x,.08)*step(d.y,.3);
- if(level<5.) return max(h,v);
- vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
- vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
- float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
- if(level<6.) return max(x,h);
- float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
- if(level<7.) return hash2;
- return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
-}
-
-
-void main(){
- vec2 CELL=floor(vec2(6.,10.)*u_ratio+.5);
- vec2 cell=floor(gl_FragCoord.xy/CELL);
- vec2 c=(cell+.5)*CELL;
- vec2 uv=c/u_resolution;
- float t=u_time;
- // the Milky Way: a diagonal band of star clouds, cut by dark dust lanes
- vec2 p=vec2(uv.x*u_resolution.x/u_resolution.y,uv.y);
- float line=p.y-(.62+.32*(uv.x-.5)+.05*sin(p.x*2.2));
- float band=exp(-line*line*22.);
- float clouds=fbm(p*vec2(3.,5.)+vec2(t*.01,0.));
- float dust=smoothstep(.45,.75,fbm(p*vec2(6.,9.)+11.3+vec2(t*.008,0.)))*exp(-line*line*40.);
- float glow=band*(.12+.8*clouds*clouds*1.4)*(1.-.9*dust);
- float core=exp(-pow((uv.x-.68)*3.,2.))*exp(-line*line*30.)*.5;
- // stars: dense in the band, sparse outside, twinkling
- float h=hash(cell);
- float star=step(.975-band*.06,h)*(.5+.5*sin(t*1.4+h*90.));
- float lum=max(glow+core,star*.7);
- vec3 col=mix(u_index,u_color,clamp(clouds*1.2-.2+core*1.5,0.,1.));
- col=mix(col,u_text,clamp(core*1.2+(star*.7>glow+core?1.:0.),0.,1.));
- float level=floor(pow(clamp(lum,0.,1.),.75)*7.99);
- float g=glyph(fract(gl_FragCoord.xy/CELL),level);
- gl_FragColor=vec4(mix(u_bg,col,g*clamp(.25+lum,0.,1.)),1.);
-}`, {
-  ratio: 1.5, speed: 1, start: 12,
-  size: () => [banner.clientWidth, banner.clientHeight],
-  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); },
+// wait for JetBrains Mono so the ramp is measured in the real font
+(document.fonts ? document.fonts.load('16px "JetBrains Mono"').catch(() => {}) : Promise.resolve()).then(() => {
+  shader($("#contours"), SKY, {
+    speed: 1, start: 40, tint: themeTint,
+    size: () => [innerWidth, innerHeight],
+    resized: (set, r) => {
+      const col = $("main.col").getBoundingClientRect(), m = Math.max(col.left, innerWidth - col.right, 160);
+      set("u_margin", m * r);
+      set("u_left", [Math.max(col.left / 2, 90) * r, innerHeight * 0.45 * r]);
+      set("u_right", [Math.min((col.right + innerWidth) / 2, innerWidth - 90) * r, innerHeight * 0.6 * r]);
+    },
+    each: (set) => set("u_scroll", scrollY),
+  });
 });
+
+/* ---- the header: Forme's Dot grid (src/registry/dot-grid.tsx), a dot matrix with a slow
+   swell; dots near the pointer glow in the theme's accent colour ---- */
+(function dots() {
+  const node = $("#dots"), ctx = node.getContext("2d"), SP = 20;
+  const p = { x: 0, y: 0, tx: 0, ty: 0, s: 0, on: false };
+  let w = 0, h = 0, t = 0, last = performance.now(), visible = true, dot = "0,0,0", glow = "0,0,0";
+  const rgbOf = (v) => token(v).map((c) => Math.round(c * 255)).join(",");
+  const colors = () => { dot = rgbOf("--mute"); glow = rgbOf("--sig"); };
+  const paint = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    if (!REDUCED) t += dt;
+    p.x += (p.tx - p.x) * 0.25; p.y += (p.ty - p.y) * 0.25; p.s += ((p.on ? 1 : 0) - p.s) * 0.15;
+    ctx.clearRect(0, 0, w, h);
+    for (let y = SP / 2; y < h; y += SP) for (let x = SP / 2; x < w; x += SP) {
+      const swell = REDUCED ? 0 : 0.5 + 0.5 * Math.sin(x * 0.012 + y * 0.009 - t * 0.9);
+      const d = Math.hypot(x - p.x, y - p.y), g = p.s * Math.exp(-(d * d) / 7000);
+      ctx.fillStyle = g > 0.05 ? `rgba(${glow},${(0.35 + g * 0.65).toFixed(3)})` : `rgba(${dot},${(0.35 + swell * 0.25).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(x, y, 1.1 + g * 1.6, 0, 6.2832); ctx.fill();
+    }
+  };
+  const size = () => {
+    w = banner.clientWidth; h = banner.clientHeight;
+    const r = Math.min(devicePixelRatio || 1, 2);
+    node.width = w * r; node.height = h * r; ctx.setTransform(r, 0, 0, r, 0, 0); paint(performance.now());
+  };
+  colors(); size();
+  addEventListener("resize", size);
+  addEventListener("theme-change", () => { colors(); paint(performance.now()); });
+  banner.addEventListener("pointermove", (e) => { const b = node.getBoundingClientRect(); p.tx = e.clientX - b.left; p.ty = e.clientY - b.top; if (p.s < 0.02) { p.x = p.tx; p.y = p.ty; } p.on = true; });
+  banner.addEventListener("pointerleave", () => { p.on = false; });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(node);
+  (function loop(ms) { requestAnimationFrame(loop); if (visible && !document.hidden && ms - last >= 32) paint(ms); })(0);
+})();
 
 /* ---- Forme's Dock (src/registry/dock.tsx): icons swell toward the pointer ---- */
 (function dock() {

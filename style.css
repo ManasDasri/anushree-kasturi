@@ -95,7 +95,7 @@ ul, ol { list-style: none; }
 .banner { height: clamp(260px, 42svh, 380px); overflow: hidden; }
 .banner canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .banner h1 { position: absolute; z-index: 1; left: 0; bottom: 0; padding: 0 36px 24px; font-size: clamp(2.4rem, 9vw, 4.4rem); font-weight: 700; letter-spacing: -.04em; line-height: .9; white-space: nowrap; }
-#milky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#dots { position: absolute; inset: 0; width: 100%; height: 100%; -webkit-mask-image: radial-gradient(ellipse at 50% 45%, #000 55%, transparent 100%); mask-image: radial-gradient(ellipse at 50% 45%, #000 55%, transparent 100%); }
 /* calendar fills in column by column */
 @media (prefers-reduced-motion: no-preference) {
 .heat:not(.in) i { opacity: 0; transform: scale(.4); }

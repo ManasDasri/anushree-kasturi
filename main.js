@@ -194,10 +194,11 @@ const banner = $(".banner");
 
 /* ---- VS Code themes, from the dock. Each theme is a block of tokens in style.css; the
    choice is remembered per visitor. ---- */
-(function themes() {
-  const THEMES = [["sage", "Sage (default)"], ["dark-plus", "Dark+"], ["one-dark", "One Dark Pro"], ["dracula", "Dracula"], ["monokai", "Monokai"],
+const THEMES = [["sage", "Sage (default)"], ["dark-plus", "Dark+"], ["one-dark", "One Dark Pro"], ["dracula", "Dracula"], ["monokai", "Monokai"],
     ["github-dark", "GitHub Dark"], ["tokyo-night", "Tokyo Night"], ["catppuccin", "Catppuccin Mocha"], ["nord", "Nord"],
     ["light-plus", "Light+"], ["github-light", "GitHub Light"], ["solarized-light", "Solarized Light"]];
+let applyTheme;
+(function themes() {
   const btn = $("#theme"), menu = $("#theme-menu");
   const current = () => document.documentElement.dataset.theme || "sage";
   for (const [id, name] of THEMES) {
@@ -213,13 +214,12 @@ const banner = $(".banner");
   };
   const open = (on) => { menu.hidden = !on; btn.setAttribute("aria-expanded", on); if (on) menu.querySelector("[aria-checked=true]")?.focus(); };
   btn.addEventListener("click", () => open(menu.hidden));
-  menu.addEventListener("click", (e) => {
-    const b = e.target.closest("[role=menuitemradio]");
-    if (!b) return;
-    if (b.dataset.id === "sage") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = b.dataset.id;
-    try { localStorage.setItem("theme", b.dataset.id); } catch {}
+  applyTheme = (id) => {
+    if (id === "sage") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = id;
+    try { localStorage.setItem("theme", id); } catch {}
     sync(); dispatchEvent(new Event("theme-change"));
-  });
+  };
+  menu.addEventListener("click", (e) => { const b = e.target.closest("[role=menuitemradio]"); if (b) applyTheme(b.dataset.id); });
   menu.addEventListener("keydown", (e) => {
     const list = [...menu.querySelectorAll("[role=menuitemradio]")], i = list.indexOf(document.activeElement);
     const d = { ArrowDown: 1, ArrowUp: -1 }[e.key];
@@ -296,7 +296,7 @@ fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
     const days = all.slice(Math.max(0, start));
     const pad = new Date(days[0].date + "T00:00").getDay(); // first column starts on Sunday
     const cells = [...Array(pad).fill(null), ...days];
-    $("#heat").innerHTML = cells.map((d) => d ? `<i data-l="${d.level}" data-c="${d.count}" data-d="${d.date}"></i>` : `<i class="pad"></i>`).join("");
+    $("#heat").innerHTML = cells.map((d, i) => d ? `<i data-l="${d.level}" data-c="${d.count}" data-d="${d.date}" style="--w:${(i / 7) | 0}"></i>` : `<i class="pad"></i>`).join("");
     // a month's label sits over the first week that starts in it
     const weeks = Math.ceil(cells.length / 7);
     let prev = -1, months = "";
@@ -307,10 +307,10 @@ fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
     }
     $("#months").innerHTML = months;
     const total = days.reduce((s, d) => s + d.count, 0), { longest, cur } = streaks(days);
-    $("#s-total").textContent = total.toLocaleString();
-    $("#s-active").textContent = days.filter((d) => d.count).length;
-    $("#s-long").textContent = longest + "d";
-    $("#s-cur").textContent = cur + "d";
+    countTo($("#s-total"), total.toLocaleString());
+    countTo($("#s-active"), String(days.filter((d) => d.count).length));
+    countTo($("#s-long"), longest + "d");
+    countTo($("#s-cur"), cur + "d");
     $("#heat").setAttribute("aria-label", `${total} GitHub contributions in the last six months`);
     const tip = $("#tip");
     $("#heat").addEventListener("pointerover", (e) => {
@@ -329,17 +329,18 @@ fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
   try {
     const [merged, open] = await Promise.all([q("is:merged"), q("is:open")]);
     const repoOf = (pr) => pr.repository_url.split("/repos/")[1];
-    $("#o-merged").textContent = merged.total_count;
-    $("#o-repos").textContent = new Set(merged.items.map(repoOf)).size;
-    $("#o-open").textContent = open.total_count;
+    countTo($("#o-merged"), String(merged.total_count));
+    countTo($("#o-repos"), String(new Set(merged.items.map(repoOf)).size));
+    countTo($("#o-open"), String(open.total_count));
     $("#oss-note").textContent = "pull requests merged into other people's projects · live from GitHub";
-    // the newest merges, one per repository, with each repository's stars and language
-    const seen = new Set(), latest = [];
-    for (const pr of merged.items) { const r = repoOf(pr); if (!seen.has(r) && latest.length < 9) { seen.add(r); latest.push(pr); } }
+    // the newest merges, one per repository and skipping the pinned ones, with stars and language
+    const seen = new Set([...document.querySelectorAll("#prs .repo")].map((e) => e.firstChild.textContent.trim())), latest = [];
+    for (const pr of merged.items) { const r = repoOf(pr); if (!seen.has(r) && latest.length < 8) { seen.add(r); latest.push(pr); } }
     const repos = await Promise.all(latest.map((pr) => fetch(pr.repository_url).then((r) => r.ok ? r.json() : {}).catch(() => ({}))));
     const k = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
     const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
-    $("#prs").replaceChildren(...latest.map((pr, i) => {
+    $("#prs-h-label").innerHTML = `<span class="live-dot"></span>latest merges, live from GitHub`;
+    $("#prs-live").replaceChildren(...latest.map((pr, i) => {
       const a = el("a"); a.href = pr.html_url; a.target = "_blank"; a.rel = "noopener";
       const repo = el("span", "repo", repoOf(pr));
       if (repos[i].stargazers_count) repo.append(el("em", "", `★ ${k(repos[i].stargazers_count)}`));
@@ -363,14 +364,91 @@ if (!REDUCED) document.querySelectorAll(".cards > li > a").forEach((a) => {
   a.addEventListener("pointerleave", () => { shot.classList.remove("live"); shot.style.setProperty("--rx", "0deg"); shot.style.setProperty("--ry", "0deg"); });
 });
 
-/* ---- open source: four rows, the rest behind a button ---- */
-const prsMore = $("#prs-more");
-const syncMore = () => {
-  const n = $("#prs").children.length - 4, open = $("#prs").classList.contains("open");
-  prsMore.hidden = n <= 0;
-  prsMore.textContent = open ? "show less ↑" : `show ${n} more ↓`;
-  prsMore.setAttribute("aria-expanded", open);
-};
-prsMore.addEventListener("click", () => { $("#prs").classList.toggle("open"); syncMore(); });
-syncMore();
-new MutationObserver(syncMore).observe($("#prs"), { childList: true });
+/* ---- open source: four pinned PRs; the latest merges behind a button ---- */
+const prsMore = $("#prs-more"), prsRest = $("#prs-rest");
+prsMore.addEventListener("click", () => {
+  prsRest.hidden = !prsRest.hidden;
+  prsMore.setAttribute("aria-expanded", !prsRest.hidden);
+  prsMore.textContent = prsRest.hidden ? "show latest merges ↓" : "hide ↑";
+});
+
+/* ---- small motion: section titles decode as they arrive, numbers count up, the
+   calendar fills in. All of it is skipped with reduced motion. ---- */
+const GLYPHS = "!<>-_\\/[]{}=+*^?#01";
+function decode(el) {
+  const text = el.textContent, start = performance.now(), dur = 520;
+  el.setAttribute("aria-label", text);
+  (function frame(now) {
+    const k = Math.min(1, (now - start) / dur), shown = Math.floor(k * text.length);
+    el.textContent = text.slice(0, shown) + [...text.slice(shown)].map((c) => c === " " ? " " : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join("");
+    if (k < 1) requestAnimationFrame(frame); else el.textContent = text;
+  })(start);
+}
+// counts a tile from its current number to `text` (keeps any suffix: d, k, ★)
+function countTo(el, text) {
+  const m = String(text).match(/^([\d,.]+)(.*)$/);
+  if (REDUCED || !m) { el.textContent = text; return; }
+  const to = parseFloat(m[1].replace(/,/g, "")), from = parseFloat((el.textContent.match(/[\d,.]+/) || ["0"])[0].replace(/,/g, "")) || 0;
+  const dec = (m[1].split(".")[1] || "").length, start = performance.now(), dur = 900;
+  (function frame(now) {
+    const k = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - k, 3), v = from + (to - from) * e;
+    el.textContent = (dec ? v.toFixed(dec) : Math.round(v).toLocaleString()) + m[2];
+    if (k < 1) requestAnimationFrame(frame);
+  })(start);
+}
+if (!REDUCED) {
+  const seen = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    seen.unobserve(e.target);
+    if (e.target.tagName === "H2") decode(e.target);
+    else if (e.target.tagName === "DT") { const final = e.target.textContent; e.target.textContent = "0"; countTo(e.target, final); }
+    else e.target.classList.add("in");
+  }), { rootMargin: "0px 0px -12% 0px" });
+  document.querySelectorAll("section h2, #oss .tiles dt, .heat").forEach((el) => seen.observe(el));
+}
+
+/* ---- ⌘K: jump to a section, switch theme, copy the email, open a profile ---- */
+(function palette() {
+  const dlg = $("#palette"), input = $("#pal-in"), list = $("#pal-list");
+  const go = (id) => () => document.getElementById(id).scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" });
+  const link = (url) => () => window.open(url, "_blank", "noopener");
+  const ITEMS = [
+    ["Go to", "Top", go("top")], ["Go to", "Selected work", go("work")], ["Go to", "Open source", go("oss")], ["Go to", "Now", go("now")],
+    ["Go to", "Stack", go("stack")], ["Go to", "Activity", go("activity")], ["Go to", "Contact", go("contact")],
+    ["Action", "Copy email address", () => navigator.clipboard?.writeText("anushree.kasturi06@gmail.com")],
+    ["Action", "Send an email", () => { location.href = "mailto:anushree.kasturi06@gmail.com"; }],
+    ["Open", "GitHub", link("https://github.com/AnushreeKasturi")], ["Open", "LinkedIn", link("https://www.linkedin.com/in/anushree-kasturi/")],
+    ["Open", "LeetCode", link("https://leetcode.com/u/AnushreeKasturi/")], ["Open", "Forme", link("https://forme-amber.vercel.app")],
+    ...THEMES.map(([id, name]) => ["Theme", name, () => applyTheme(id)]),
+  ];
+  let shown = [], sel = 0;
+  const render = () => {
+    const q = input.value.trim().toLowerCase();
+    shown = ITEMS.filter(([g, n]) => (g + " " + n).toLowerCase().includes(q));
+    sel = Math.min(sel, Math.max(0, shown.length - 1));
+    list.replaceChildren(...shown.map(([g, n], i) => {
+      const li = document.createElement("li");
+      li.id = "pal-" + i; li.setAttribute("role", "option"); li.setAttribute("aria-selected", i === sel);
+      const a = document.createElement("span"); a.className = "g"; a.textContent = g;
+      li.append(a, n);
+      li.addEventListener("click", () => run(i));
+      li.addEventListener("pointermove", () => { if (sel !== i) { sel = i; render(); } });
+      return li;
+    }));
+    if (!shown.length) { const li = document.createElement("li"); li.className = "none"; li.textContent = "nothing matches"; list.append(li); }
+    input.setAttribute("aria-activedescendant", shown.length ? "pal-" + sel : "");
+    list.querySelector("[aria-selected=true]")?.scrollIntoView({ block: "nearest" });
+  };
+  const open = () => { input.value = ""; sel = 0; render(); dlg.showModal(); input.focus(); };
+  const run = (i) => { const it = shown[i]; if (!it) return; dlg.close(); it[2](); };
+  addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); dlg.open ? dlg.close() : open(); }
+  });
+  document.querySelectorAll("[data-palette]").forEach((b) => b.addEventListener("click", open));
+  input.addEventListener("input", () => { sel = 0; render(); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + shown.length) % Math.max(1, shown.length); render(); }
+    else if (e.key === "Enter") { e.preventDefault(); run(sel); }
+  });
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+})();

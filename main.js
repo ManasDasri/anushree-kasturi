@@ -71,7 +71,7 @@ void main(){
  float line=1.0-smoothstep(.5,1.5,dist),index=step(mod(floor(h+.5),5.0),.5),lineIndex=1.0-smoothstep(.75,1.8,dist);
  float a=mix(line*.38,lineIndex*.9,index)*(1.0-.5*smoothstep(.6,1.9,length(p)));
  gl_FragColor=vec4(mix(u_bg,mix(u_color,u_index,index),a),1.0);}`, {
-  speed: 0.35, start: 20,
+  ratio: 1, speed: 0.35, start: 20,
   size: () => [innerWidth, innerHeight],
   tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); },
 });
@@ -261,18 +261,26 @@ void main(){
 (function dock() {
   const small = innerWidth <= 640, SIZE = small ? 38 : 44, GAP = small ? 5 : 8, PAD = small ? 7 : 10, MAX_BOOST = 0.62;
   const ul = $(".forme-dock ul"), items = [...ul.children].filter((li) => !li.classList.contains("sep"));
-  let space = Infinity;
+  let space = Infinity, centers = [], raf = 0, px = null;
+  // Measure each icon's centre once, at rest, when the pointer arrives. Re-measuring on every
+  // move reads layout while the icons are resizing, which stalls the frame.
+  const measure = () => { centers = items.map((el) => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; }); };
   const magnify = (x) => {
     if (x === null || REDUCED) return items.forEach((el) => el.style.setProperty("--forme-dock-scale", "1"));
-    const boosts = items.map((el) => { const r = el.getBoundingClientRect(), d = (x - (r.left + r.width / 2)) / 90; return MAX_BOOST * Math.exp(-d * d); });
+    const boosts = centers.map((c) => { const d = (x - c) / 90; return MAX_BOOST * Math.exp(-d * d); });
     const rest = items.length * SIZE + (items.length - 1) * GAP + PAD * 2;
     const room = Math.max(0, space - rest), growth = SIZE * boosts.reduce((a, b) => a + b, 0), k = growth > room ? room / growth : 1;
     items.forEach((el, i) => el.style.setProperty("--forme-dock-scale", String(1 + boosts[i] * k)));
   };
-  ul.addEventListener("pointerenter", () => { space = $(".dock-wrap").clientWidth - 16; });
-  // browsing the theme menu shouldn't magnify the icons
-  ul.addEventListener("pointermove", (e) => e.pointerType === "mouse" && magnify(e.target.closest(".theme-menu") ? null : e.clientX));
-  ul.addEventListener("pointerleave", () => magnify(null));
+  ul.addEventListener("pointerenter", () => { space = $(".dock-wrap").clientWidth - 16; magnify(null); measure(); });
+  addEventListener("resize", measure);
+  // one update per frame; browsing the theme menu shouldn't magnify the icons
+  ul.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    px = e.target.closest(".theme-menu") ? null : e.clientX;
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; magnify(px); });
+  });
+  ul.addEventListener("pointerleave", () => { cancelAnimationFrame(raf); raf = 0; magnify(null); });
 
   // the dot under the section in view
   const mark = (id) => items.forEach((li) => li.dataset.for === id ? li.setAttribute("data-active", "") : li.removeAttribute("data-active"));

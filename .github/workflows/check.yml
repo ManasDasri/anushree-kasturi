@@ -1,0 +1,28 @@
+# Checks the site on every push and PR. Vercel deploys it (https://anushreekasturi.vercel.app).
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: JavaScript parses
+        run: node --check main.js
+      - name: Every local file index.html references exists
+        run: |
+          grep -oE '(src|href)="[^"#]+"' index.html | sed -E 's/^[a-z]+="//; s/"$//' \
+            | grep -vE '^(https?:|mailto:|data:)' \
+            | while read -r f; do test -f "$f" || { echo "missing: $f"; exit 1; }; done
+

@@ -2,7 +2,7 @@
 
 Static site (HTML/CSS/JS, no build step) hosted on GitHub Pages.
 
-All content is plain HTML in `index.html`; images and stack icons (Simple Icons) live in `img/`, the social preview is `og.png`. `main.js` draws an ASCII flow field in the margins and runs Forme components ported to plain JS (Dot grid header, Dock, Spotlight edge on project cards, Beam strip) plus 12 VS Code themes (tokens in `style.css`, all at 4.5:1 contrast), a ⌘K palette, the Now tabs, a live GitHub calendar and live open-source data (what is written in `index.html` is the fallback).
+All content is plain HTML in `index.html`; images and stack icons (Simple Icons) live in `img/`, the social preview is `og.png`. `main.js` draws a dense ASCII space scene behind the page (WebGL glyphs: a spiral galaxy, a nebula, dust and stars; the pointer is a lens) and runs Forme components ported to plain JS (Dot grid header, Dock, Spotlight edge on project cards, Beam strip) plus 12 VS Code themes (tokens in `style.css`, all at 4.5:1 contrast), a ⌘K palette, the Now tabs, a live GitHub calendar and live open-source data (what is written in `index.html` is the fallback).
 
 Drop a `resume.pdf` next to `index.html` and the résumé buttons appear on their own.
 

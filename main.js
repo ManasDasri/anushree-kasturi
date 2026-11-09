@@ -2,77 +2,142 @@ const $ = (s) => document.querySelector(s);
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const token = (v) => { const h = getComputedStyle(document.documentElement).getPropertyValue(v).trim(); return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); };
 
-/* ---- behind the page: an ASCII flow field. Each cell shows the direction of a slowly
-   drifting current (- / | \\), with calm dots where it's weak. Around the pointer the current
-   curls into a vortex and brightens. Only the margins are drawn; the column covers the rest. ---- */
-(function flow() {
-  const node = $("#contours"), ctx = node.getContext("2d");
-  const CW = 12, CH = 18, CHARS = ["-", "\\", "|", "/"];
-  const P = new Uint8Array(512);
-  for (let i = 0; i < 256; i++) P[i] = i;
-  for (let i = 255; i > 0; i--) { const j = (Math.sin(i * 91.7) * 43758.5453 % 1 + 1) % 1 * (i + 1) | 0; [P[i], P[j]] = [P[j], P[i]]; }
-  for (let i = 0; i < 256; i++) P[i + 256] = P[i];
-  const fade = (t) => t * t * (3 - 2 * t);
-  const noise = (x, y) => { // smooth value noise, 0..1
-    const xi = Math.floor(x) & 255, yi = Math.floor(y) & 255, xf = x - Math.floor(x), yf = y - Math.floor(y), u = fade(xf), v = fade(yf);
-    const a = P[P[xi] + yi] / 255, b = P[P[xi + 1] + yi] / 255, c = P[P[xi] + yi + 1] / 255, d = P[P[xi + 1] + yi + 1] / 255;
-    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+/* ---- a small WebGL runner for Forme's shaders (src/registry/shader-canvas.tsx): renders
+   only while on screen and the tab is visible, at most ~30fps; one still frame with
+   reduced motion. ---- */
+function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer, hoverable = false, resized } = {}) {
+  const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
+  if (!gl) return;
+  const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}"));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragment));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = (n) => gl.getUniformLocation(prog, n);
+  const mouse = [0.5, 0.5], target = [0.5, 0.5];
+  let visible = true, last = 0, hover = 0, hovering = !hoverable;
+  const draw = (ms) => {
+    mouse[0] += (target[0] - mouse[0]) * 0.3; mouse[1] += (target[1] - mouse[1]) * 0.3;
+    hover += ((hovering ? 1 : 0) - hover) * 0.12;
+    gl.uniform2f(U("u_mouse"), mouse[0], mouse[1]);
+    gl.uniform1f(U("u_hover"), hover);
+    gl.uniform1f(U("u_time"), start + ms / 1000 * speed);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
-  // two octaves on rotated axes, so the field doesn't show the noise grid
-  const fbm = (x, y) => {
-    const X = x * 0.866 - y * 0.5, Y = x * 0.5 + y * 0.866;
-    return noise(X, Y) * 0.65 + noise(X * 2.13 + 17.3, Y * 2.13 - 5.1) * 0.35;
+  const resize = () => {
+    const r = Math.min(devicePixelRatio || 1, ratio), [w, h] = size();
+    canvas.width = Math.round(w * r); canvas.height = Math.round(h * r);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(U("u_resolution"), canvas.width, canvas.height);
+    gl.uniform1f(U("u_ratio"), r);
+    if (resized) resized(set, r);
+    draw(performance.now());
   };
-  let w = 0, h = 0, cols = 0, rows = 0, colL = 0, colR = 0, t = 30, last = 0, visible = true;
-  let mx = -1e4, my = -1e4, tx = -1e4, ty = -1e4, hover = 0, on = false, mute = "0,0,0", sig = "0,0,0", lav = "0,0,0";
-  const rgb = (v) => token(v).map((c) => Math.round(c * 255)).join(",");
-  const colours = () => { mute = rgb("--mute"); sig = rgb("--sig"); lav = rgb("--lav"); };
-  const size = () => {
-    const r = Math.min(devicePixelRatio || 1, 2);
-    w = innerWidth; h = innerHeight; node.width = w * r; node.height = h * r; ctx.setTransform(r, 0, 0, r, 0, 0);
-    cols = Math.ceil(w / CW); rows = Math.ceil(h / CH);
-    const col = $("main.col").getBoundingClientRect(); colL = col.left; colR = col.right;
-    ctx.font = `13px "JetBrains Mono", ui-monospace, monospace`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  };
-  const paint = () => {
-    ctx.clearRect(0, 0, w, h);
-    // three brightness buckets per colour, so fillStyle changes a handful of times per frame
-    const buckets = {};
-    const put = (key, x, y, ch) => (buckets[key] ||= []).push(x, y, ch);
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const x = c * CW + CW / 2, y = r * CH + CH / 2;
-      if (x > colL - CW && x < colR + CW) continue;
-      let ang = fbm(c * 0.06 + t * 0.05, r * 0.085 - t * 0.03) * Math.PI * 3;
-      let str = fbm(c * 0.08 - t * 0.04 + 40, r * 0.11 + 9);
-      const dx = x - mx, dy = y - my, d = Math.hypot(dx, dy), near = hover * Math.exp(-(d * d) / (2 * 170 * 170));
-      if (near > 0.02) { ang += (Math.atan2(dy, dx) + Math.PI / 2 - ang) * near; str = Math.max(str, near); }
-      if (str < 0.4 && near < 0.1) { if (((c * 7 + r * 13) % 4) === 0) put("m1", x, y, "·"); continue; }
-      const k = ((Math.round(ang / (Math.PI / 4)) % 4) + 4) % 4;
-      const level = near > 0.45 ? "s3" : near > 0.15 ? "s2" : str > 0.66 ? (((c * 3 + r) % 11) ? "m3" : "l3") : "m2";
-      put(level, x, y, CHARS[k]);
-    }
-    const style = { m1: [mute, 0.22], m2: [mute, 0.32], m3: [mute, 0.5], l3: [lav, 0.55], s2: [sig, 0.55], s3: [sig, 0.95] };
-    for (const key in buckets) {
-      const [col, a] = style[key], b = buckets[key];
-      ctx.fillStyle = `rgba(${col},${a})`;
-      for (let i = 0; i < b.length; i += 3) ctx.fillText(b[i + 2], b[i], b[i + 1]);
-    }
-  };
-  const loop = (ms) => {
+  const set = (n, v) => typeof v === "number" ? gl.uniform1f(U(n), v) : v.length === 2 ? gl.uniform2f(U(n), ...v) : v.length === 3 ? gl.uniform3f(U(n), ...v) : gl.uniform3fv(U(n), v);
+  const apply = () => tint(set);
+  const recolor = () => { apply(); draw(performance.now()); };
+  apply();
+  resize();
+  addEventListener("resize", resize);
+  addEventListener("theme-change", recolor);
+  if (pointer) {
+    pointer.addEventListener("pointermove", (e) => {
+      const b = pointer === window ? { left: 0, top: 0, width: innerWidth, height: innerHeight } : pointer.getBoundingClientRect();
+      target[0] = (e.clientX - b.left) / b.width; target[1] = 1 - (e.clientY - b.top) / b.height;
+      if (!hovering) { mouse[0] = target[0]; mouse[1] = target[1]; }
+      hovering = true;
+    });
+    (pointer === window ? document.documentElement : pointer).addEventListener("pointerleave", () => { hovering = false; });
+  }
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(canvas);
+  if (REDUCED) return;
+  (function loop(ms) {
     requestAnimationFrame(loop);
-    if (!visible || document.hidden || ms - last < 50) return;
-    t += (ms - last) / 1000 * (last ? 1 : 0); last = ms;
-    mx += (tx - mx) * 0.35; my += (ty - my) * 0.35; hover += ((on ? 1 : 0) - hover) * 0.15;
-    paint();
-  };
-  colours(); size(); paint();
-  addEventListener("resize", () => { size(); paint(); });
-  addEventListener("theme-change", () => { colours(); paint(); });
-  document.fonts?.ready.then(() => { size(); paint(); });
-  addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; if (!on && hover < 0.05) { mx = tx; my = ty; } on = true; }, { passive: true });
-  document.documentElement.addEventListener("pointerleave", () => { on = false; });
-  if (!REDUCED) requestAnimationFrame(loop);
-})();
+    if (!visible || document.hidden || ms - last < 33) return;
+    last = ms; draw(ms);
+  })(0);
+}
+
+const SPACE = `precision mediump float;
+uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; uniform float u_ratio; uniform float u_hover;
+uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
+uniform vec2 u_gal; uniform vec2 u_neb;
+float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+// Glyphs drawn from simple shapes, densest last: . : - + x # @
+float glyph(vec2 g, float level){
+ vec2 d=abs(g-.5);
+ float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
+ if(level<1.) return 0.;
+ if(level<2.) return dot1;
+ if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
+ float h=step(d.y,.06)*step(d.x,.32);
+ if(level<4.) return h;
+ float v=step(d.x,.08)*step(d.y,.3);
+ if(level<5.) return max(h,v);
+ vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
+ vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
+ float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
+ if(level<6.) return max(x,h);
+ float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
+ if(level<7.) return hash2;
+ return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
+}
+
+void main(){
+ vec2 CELL=floor(vec2(6.,10.)*u_ratio+.5);
+ vec2 cell=floor(gl_FragCoord.xy/CELL);
+ vec2 c=(cell+.5)*CELL;
+ float t=u_time, s=u_resolution.y;
+ // a spiral galaxy, tilted, its arms turning slowly
+ vec2 g=rot(.55)*((c-u_gal)/s*2.1); g.y*=1.8;
+ float r=length(g), a=atan(g.y,g.x);
+ float arms=pow(.5+.5*cos(2.*a-5.5*log(r+.05)+t*.22),3.);
+ float core=exp(-r*r*22.);
+ float gal=exp(-r*1.5)*(.25+.95*arms)*(.5+.6*fbm(g*4.+t*.08))+core*1.4;
+ // a nebula across the other margin
+ vec2 n=(c-u_neb)/s*1.5;
+ float neb=smoothstep(.3,.85,fbm(n*2.3+vec2(t*.025,-t*.01)))*exp(-dot(n,n)*.4)*1.25;
+ // dust and stars everywhere
+ float dust=smoothstep(.48,.9,fbm(c/s*3.2+vec2(0.,t*.015)))*.42+.08*step(.45,hash(cell+3.1));
+ float h=hash(cell);
+ float star=step(.982,h)*(.45+.55*sin(t*1.7+h*90.));
+ // the pointer: a lens that wakes the glyphs
+ float d=length(c-u_mouse*u_resolution)/u_ratio;
+ float lens=exp(-d*d/(2.*150.*150.))*u_hover;
+ float lum=max(gal+neb*.85+dust,max(star,0.)*.6);
+ lum=lum*(1.+lens*1.1)+lens*.1;
+ float level=floor(pow(clamp(lum,0.,1.),.72)*7.99);
+ float gl=glyph(fract(gl_FragCoord.xy/CELL),level);
+ vec3 col=mix(u_index,u_color,clamp(gal*1.6+lens*.6,0.,1.));
+ col=mix(col,u_text,clamp(core*1.4+max(star,0.)*(1.-gal),0.,1.));
+ float alpha=gl*clamp(.3+lum*.9,0.,1.);
+ gl_FragColor=vec4(mix(u_bg,col,alpha),1.);
+}`;
+
+/* ---- behind the page: dense ASCII space. A spiral galaxy in the left margin, a nebula in
+   the right, dust and twinkling stars, drawn as glyphs in the shader (the glyphs are from
+   Forme's Planet shader). The pointer is a lens that wakes the glyphs around it. ---- */
+shader($("#contours"), SPACE, {
+  ratio: 1.5, speed: 0.6, start: 40, pointer: window, hoverable: true,
+  size: () => [innerWidth, innerHeight],
+  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); },
+  // centre the galaxy and the nebula in the margins either side of the column
+  resized: (set, r) => {
+    const col = $("main.col").getBoundingClientRect();
+    set("u_gal", [Math.max(col.left / 2, 120) * r, innerHeight * 0.6 * r]);
+    set("u_neb", [Math.min((col.right + innerWidth) / 2, innerWidth - 120) * r, innerHeight * 0.38 * r]);
+  },
+});
 
 /* ---- the header: Forme's Dot grid (src/registry/dot-grid.tsx), a dot matrix with a slow
    swell; dots near the pointer glow in the theme's accent colour ---- */

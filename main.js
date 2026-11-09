@@ -194,39 +194,65 @@ shader($("#contours"), SPACE, {
   each: (set) => set("u_scroll", scrollY),
 });
 
-/* ---- the header: Forme's Dot grid (src/registry/dot-grid.tsx), a dot matrix with a slow
-   swell; dots near the pointer glow in the theme's accent colour ---- */
-(function dots() {
-  const node = $("#dots"), ctx = node.getContext("2d"), SP = 20;
-  const p = { x: 0, y: 0, tx: 0, ty: 0, s: 0, on: false };
-  let w = 0, h = 0, t = 0, last = performance.now(), visible = true, dot = "0,0,0", glow = "0,0,0";
-  const rgbOf = (v) => token(v).map((c) => Math.round(c * 255)).join(",");
-  const colors = () => { dot = rgbOf("--mute"); glow = rgbOf("--sig"); };
-  const paint = (now) => {
-    const dt = Math.min((now - last) / 1000, 0.05); last = now;
-    if (!REDUCED) t += dt;
-    p.x += (p.tx - p.x) * 0.25; p.y += (p.ty - p.y) * 0.25; p.s += ((p.on ? 1 : 0) - p.s) * 0.15;
-    ctx.clearRect(0, 0, w, h);
-    for (let y = SP / 2; y < h; y += SP) for (let x = SP / 2; x < w; x += SP) {
-      const swell = REDUCED ? 0 : 0.5 + 0.5 * Math.sin(x * 0.012 + y * 0.009 - t * 0.9);
-      const d = Math.hypot(x - p.x, y - p.y), g = p.s * Math.exp(-(d * d) / 7000);
-      ctx.fillStyle = g > 0.05 ? `rgba(${glow},${(0.35 + g * 0.65).toFixed(3)})` : `rgba(${dot},${(0.35 + swell * 0.25).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(x, y, 1.1 + g * 1.6, 0, 6.2832); ctx.fill();
-    }
-  };
-  const size = () => {
-    w = banner.clientWidth; h = banner.clientHeight;
-    const r = Math.min(devicePixelRatio || 1, 2);
-    node.width = w * r; node.height = h * r; ctx.setTransform(r, 0, 0, r, 0, 0); paint(performance.now());
-  };
-  colors(); size();
-  addEventListener("resize", size);
-  addEventListener("theme-change", () => { colors(); paint(performance.now()); });
-  banner.addEventListener("pointermove", (e) => { const b = node.getBoundingClientRect(); p.tx = e.clientX - b.left; p.ty = e.clientY - b.top; if (p.s < 0.02) { p.x = p.tx; p.y = p.ty; } p.on = true; });
-  banner.addEventListener("pointerleave", () => { p.on = false; });
-  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(node);
-  (function loop(ms) { requestAnimationFrame(loop); if (visible && !document.hidden && ms - last >= 32) paint(ms); })(0);
-})();
+/* ---- the header: the Milky Way in ASCII, a band of star clouds cut by dust lanes ---- */
+const banner = $(".banner");
+shader($("#milky"), `precision mediump float;
+uniform vec2 u_resolution; uniform float u_time; uniform float u_ratio; uniform float u_scroll;
+uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
+float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+// Glyphs drawn from simple shapes, densest last: . : - + x # @
+float glyph(vec2 g, float level){
+ vec2 d=abs(g-.5);
+ float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
+ if(level<1.) return 0.;
+ if(level<2.) return dot1;
+ if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
+ float h=step(d.y,.06)*step(d.x,.32);
+ if(level<4.) return h;
+ float v=step(d.x,.08)*step(d.y,.3);
+ if(level<5.) return max(h,v);
+ vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
+ vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
+ float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
+ if(level<6.) return max(x,h);
+ float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
+ if(level<7.) return hash2;
+ return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
+}
+
+
+void main(){
+ vec2 CELL=floor(vec2(6.,10.)*u_ratio+.5);
+ vec2 cell=floor(gl_FragCoord.xy/CELL);
+ vec2 c=(cell+.5)*CELL;
+ vec2 uv=c/u_resolution;
+ float t=u_time;
+ // the Milky Way: a diagonal band of star clouds, cut by dark dust lanes
+ vec2 p=vec2(uv.x*u_resolution.x/u_resolution.y,uv.y);
+ float line=p.y-(.62+.32*(uv.x-.5)+.05*sin(p.x*2.2));
+ float band=exp(-line*line*22.);
+ float clouds=fbm(p*vec2(3.,5.)+vec2(t*.01,0.));
+ float dust=smoothstep(.45,.75,fbm(p*vec2(6.,9.)+11.3+vec2(t*.008,0.)))*exp(-line*line*40.);
+ float glow=band*(.12+.8*clouds*clouds*1.4)*(1.-.9*dust);
+ float core=exp(-pow((uv.x-.68)*3.,2.))*exp(-line*line*30.)*.5;
+ // stars: dense in the band, sparse outside, twinkling
+ float h=hash(cell);
+ float star=step(.975-band*.06,h)*(.5+.5*sin(t*1.4+h*90.));
+ float lum=max(glow+core,star*.7);
+ vec3 col=mix(u_index,u_color,clamp(clouds*1.2-.2+core*1.5,0.,1.));
+ col=mix(col,u_text,clamp(core*1.2+(star*.7>glow+core?1.:0.),0.,1.));
+ float level=floor(pow(clamp(lum,0.,1.),.75)*7.99);
+ float g=glyph(fract(gl_FragCoord.xy/CELL),level);
+ gl_FragColor=vec4(mix(u_bg,col,g*clamp(.25+lum,0.,1.)),1.);
+}`, {
+  ratio: 1.5, speed: 1, start: 12,
+  size: () => [banner.clientWidth, banner.clientHeight],
+  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); },
+});
 
 /* ---- Forme's Dock (src/registry/dock.tsx): icons swell toward the pointer ---- */
 (function dock() {

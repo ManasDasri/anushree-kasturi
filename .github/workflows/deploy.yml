@@ -35,7 +35,9 @@ jobs:
 
   deploy:
     needs: check
-    if: github.event_name != 'pull_request'
+    # paused until the site's own domain is connected: set the repo variable PAGES_ENABLED=true
+    # (Settings → Secrets and variables → Actions → Variables) and turn Pages back on to deploy again
+    if: github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

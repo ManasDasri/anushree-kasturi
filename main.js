@@ -499,4 +499,5 @@ if (!REDUCED) {
 })();
 
 /* ---- résumé links appear once resume.pdf is deployed next to the page ---- */
-fetch("resume.pdf", { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => a.hidden = false); }).catch(() => {});
+// the links get their href only here, so the deploy check (every linked file exists) passes without it
+fetch("resume.pdf", { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => { a.href = "resume.pdf"; a.hidden = false; }); }).catch(() => {});

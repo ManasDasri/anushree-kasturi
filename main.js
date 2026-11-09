@@ -307,16 +307,6 @@ fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
   } catch {}
 })();
 
-/* ---- temporary: compare font pairings ---- */
-(function fonts() {
-  let f = "bricolage";
-  try { f = localStorage.getItem("font") || f; } catch {}
-  const set = (v) => { if (v === "bricolage") delete document.documentElement.dataset.font; else document.documentElement.dataset.font = v;
-    document.querySelectorAll(".pick-font button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.f === v)); try { localStorage.setItem("font", v); } catch {} };
-  document.querySelectorAll(".pick-font button").forEach((b) => b.addEventListener("click", () => set(b.dataset.f)));
-  set(f);
-})();
-
 /* ---- project cards: the screenshot tilts toward the pointer, with a glare and Forme's
    spotlight edge following it ---- */
 if (!REDUCED) document.querySelectorAll(".cards > li > a").forEach((a) => {

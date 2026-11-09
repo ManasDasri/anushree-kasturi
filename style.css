@@ -4,12 +4,9 @@
   color-scheme: dark;
   --l1: color-mix(in srgb, var(--sig) 28%, var(--raised)); --l2: color-mix(in srgb, var(--sig) 52%, var(--raised));
   --l3: color-mix(in srgb, var(--sig) 76%, var(--raised)); --l4: var(--sig);
-  --head: "Bricolage Grotesque", system-ui, sans-serif;
-  --mono: "DM Mono", ui-monospace, monospace;
+  --head: "Instrument Sans", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
 }
-[data-font="geist"] { --head: "Geist", system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace; }
-[data-font="instrument"] { --head: "Instrument Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace; }
-[data-font="sora"] { --head: "Sora", system-ui, sans-serif; --mono: "Fira Code", ui-monospace, monospace; }
 [data-theme="dark-plus"] {
   --ink: #1e1e1e; --paper: #252526; --raised: #2d2d30; --line: #3c3c3c;
   --text: #d4d4d4; --mute: #9d9d9d; --sig: #569cd6; --lav: #c586c0; --on-sig: #1e1e1e;
@@ -259,30 +256,21 @@ h3 { font: 500 12px var(--mono); color: var(--sig); margin-bottom: 12px; }
 .socials a:hover { border-color: var(--sig); color: var(--sig); }
 
 @property --forme-beam-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.forme-beam { position: relative; padding: 32px; border-radius: 18px; background: linear-gradient(180deg, var(--raised), var(--paper)); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
-.forme-beam::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(color-mix(in srgb, var(--mute) 30%, transparent) 1px, transparent 1.4px) 0 0 / 18px 18px;
-  -webkit-mask-image: radial-gradient(ellipse at 100% 0%, #000, transparent 60%); mask-image: radial-gradient(ellipse at 100% 0%, #000, transparent 60%); }
-.forme-beam-light { position: absolute; inset: 0; z-index: 1; border-radius: inherit; padding: 1px; pointer-events: none;
-  background: conic-gradient(from var(--forme-beam-angle), transparent 0deg 290deg, color-mix(in srgb, var(--sig) 30%, transparent) 330deg, var(--sig) 356deg, #fff 360deg);
+.ad { margin-top: 40px; }
+.forme-beam { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-radius: 12px;
+  background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: 14px; transition: background .2s; }
+.forme-beam:hover { background: var(--raised); }
+.forme-beam-light { position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--forme-beam-angle), transparent 0deg 300deg, color-mix(in srgb, var(--sig) 25%, transparent) 335deg, var(--sig) 358deg, transparent 360deg);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
-  animation: forme-beam-orbit 7s linear infinite; }
+  opacity: .6; animation: forme-beam-orbit 9s linear infinite; }
 @keyframes forme-beam-orbit { to { --forme-beam-angle: 360deg; } }
-.ad > * { position: relative; z-index: 2; }
-.ad .kind { margin: 0; }
-.ad-title { font-size: 3rem; font-weight: 700; letter-spacing: -.04em; line-height: 1; margin-top: 6px; }
-.ad-copy { margin-top: 12px; max-width: 46ch; color: color-mix(in srgb, var(--text) 80%, transparent); }
-.ad-used { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
-.ad-used span { font: 11px var(--mono); padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line); background: var(--ink); }
-.ad .cta { margin-top: 22px; }
-/* temporary font picker */
-.pick-font { position: fixed; z-index: 60; top: 12px; right: 12px; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); font: 11px var(--mono); color: var(--mute); }
-.pick-font span { padding: 0 6px; }
-.pick-font button { font: inherit; color: var(--text); background: none; border: 0; padding: 5px 9px; border-radius: 6px; cursor: pointer; }
-.pick-font button[aria-pressed="true"] { background: var(--raised); color: var(--sig); }
+.ad b { font-weight: 600; color: var(--text); }
+.ad-go { flex: none; font: 12px var(--mono); color: var(--sig); }
 footer { padding-bottom: 140px; font: 12px var(--mono); color: var(--mute); }
 footer a { color: var(--text); border-bottom: 1px dashed color-mix(in srgb, var(--mute) 50%, transparent); }
 footer a:hover { color: var(--sig); border-color: var(--sig); }
-footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 
 /* ---- Forme Dock (src/registry/dock.css), pinned to the bottom of the window ---- */
 .dock-wrap { position: fixed; z-index: 40; left: 0; right: 0; bottom: 10px; padding: 0 8px; pointer-events: none; color: var(--text); }

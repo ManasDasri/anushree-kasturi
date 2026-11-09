@@ -11,14 +11,12 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23060908'/><text x='50' y='66' font-family='sans-serif' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:wght@400;500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <a href="#main" class="skip">Skip to content</a>
-<!-- temporary: compare fonts -->
-<div class="pick-font"><span>font</span><button data-f="bricolage">Bricolage</button><button data-f="geist">Geist</button><button data-f="instrument">Instrument</button><button data-f="sora">Sora</button></div>
 
 <!-- Forme's Contours shader, behind everything: shows in the margins and through the banner -->
 <canvas id="contours" class="contours" aria-hidden="true"></canvas>
@@ -262,28 +260,17 @@
       <li><a href="https://huggingface.co/Anushree24" target="_blank" rel="noopener">Hugging Face</a></li>
       <li><a href="https://x.com/Anushree_kastur" target="_blank" rel="noopener">X</a></li>
     </ul>
+      <!-- Forme's Beam card, kept small -->
+    <a class="forme-beam ad" href="https://forme-amber.vercel.app/components/" target="_blank" rel="noopener">
+      <span class="forme-beam-light" aria-hidden="true"></span>
+      <span class="ad-copy"><span class="mute">this page is built with</span> <b>Forme</b><span class="mute">, components for interfaces that feel alive</span></span>
+      <span class="ad-go">browse ↗</span>
+    </a>
   </section>
 
-  <div class="band"></div>
-  <section id="forme" aria-label="Forme">
-    <!-- Forme's Beam card -->
-    <div class="forme-beam ad">
-      <span class="forme-beam-light" aria-hidden="true"></span>
-      <p class="kind">this page is built with</p>
-      <p class="ad-title">Forme<span class="sig">.</span></p>
-      <p class="ad-copy">Components for interfaces that feel alive: shaders, ASCII, navigation, inputs and feedback for React. Free, and the source is yours to keep.</p>
-      <p class="ad-used"><span>Dock</span><span>Dot grid</span><span>Contours</span><span>Beam card</span><span>Spotlight card</span><span class="mute">+ 48 more</span></p>
-      <div class="cta">
-        <a class="btn primary" href="https://forme-amber.vercel.app/components/" target="_blank" rel="noopener">Browse components ↗</a>
-        <a class="btn" href="https://forme-amber.vercel.app/docs/" target="_blank" rel="noopener">Read the docs</a>
-        <a class="btn" href="https://github.com/ManasDasri/forme" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </section>
 
   <div class="band"></div>
   <footer>
-    <p>Built with <a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a>, the component library I'm building with Manas Dasari.</p>
     <p class="row"><span>© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></span><a href="#top">back to top ↑</a></p>
   </footer>
 </main>

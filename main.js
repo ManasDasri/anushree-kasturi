@@ -5,7 +5,7 @@ const token = (v) => { const h = getComputedStyle(document.documentElement).getP
 /* ---- a small WebGL runner for Forme's shaders (src/registry/shader-canvas.tsx): renders
    only while on screen and the tab is visible, at most ~30fps; one still frame with
    reduced motion. ---- */
-function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer } = {}) {
+function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer, hoverable = false } = {}) {
   const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
   if (!gl) return;
   const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
@@ -21,10 +21,12 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const U = (n) => gl.getUniformLocation(prog, n);
   const mouse = [0.5, 0.5], target = [0.5, 0.5];
-  let visible = true, last = 0;
+  let visible = true, last = 0, hover = 0, hovering = !hoverable;
   const draw = (ms) => {
-    mouse[0] += (target[0] - mouse[0]) * 0.08; mouse[1] += (target[1] - mouse[1]) * 0.08;
+    mouse[0] += (target[0] - mouse[0]) * 0.3; mouse[1] += (target[1] - mouse[1]) * 0.3;
+    hover += ((hovering ? 1 : 0) - hover) * 0.12;
     gl.uniform2f(U("u_mouse"), mouse[0], mouse[1]);
+    gl.uniform1f(U("u_hover"), hover);
     gl.uniform1f(U("u_time"), start + ms / 1000 * speed);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
@@ -43,10 +45,15 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   resize();
   addEventListener("resize", resize);
   addEventListener("theme-change", recolor);
-  if (pointer) pointer.addEventListener("pointermove", (e) => {
-    const b = pointer.getBoundingClientRect();
-    target[0] = (e.clientX - b.left) / b.width; target[1] = 1 - (e.clientY - b.top) / b.height;
-  });
+  if (pointer) {
+    pointer.addEventListener("pointermove", (e) => {
+      const b = pointer === window ? { left: 0, top: 0, width: innerWidth, height: innerHeight } : pointer.getBoundingClientRect();
+      target[0] = (e.clientX - b.left) / b.width; target[1] = 1 - (e.clientY - b.top) / b.height;
+      if (!hovering) { mouse[0] = target[0]; mouse[1] = target[1]; }
+      hovering = true;
+    });
+    (pointer === window ? document.documentElement : pointer).addEventListener("pointerleave", () => { hovering = false; });
+  }
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(canvas);
   if (REDUCED) return;
   (function loop(ms) {
@@ -56,28 +63,64 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   })(0);
 }
 
-const CONTOURS = `precision mediump float;
-uniform vec2 u_resolution; uniform float u_time; uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform float u_zoom; uniform float u_levels; uniform float u_gain;
+const ASCII_FIELD = `precision mediump float;
+uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; uniform float u_ratio; uniform float u_hover;
+uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg;
 float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);
  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
 float height(vec2 p,float t){float h=0.0,a=.55;vec2 q=p+vec2(t*.04,-t*.025);
  for(int i=0;i<4;i++){h+=a*noise(q);q=q*2.03+vec2(1.7,9.2)+t*.015;a*=.5;}return h;}
-void main(){
- vec2 p=(gl_FragCoord.xy-.5*u_resolution)/u_resolution.y*u_zoom;
- float t=u_time,levels=u_levels,h=height(p,t)*levels,e=1.5/u_resolution.y*u_zoom;
- vec2 g=vec2(height(p+vec2(e,0.),t)-height(p-vec2(e,0.),t),height(p+vec2(0.,e),t)-height(p-vec2(0.,e),t))*levels/(2.*e);
- float px=length(g)*(u_zoom/u_resolution.y)+1e-4,d=abs(fract(h)-.5)*2.0,dist=(1.0-d)*.5/px;
- float line=1.0-smoothstep(.5,1.5,dist),index=step(mod(floor(h+.5),5.0),.5),lineIndex=1.0-smoothstep(.75,1.8,dist);
- float a=min(1.,mix(line*.38,lineIndex*.9,index)*u_gain*(1.0-.5*smoothstep(.6,1.9,length(p)*2.4/u_zoom)));
- gl_FragColor=vec4(mix(u_bg,mix(u_color,u_index,index),a),1.0);}`;
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+// Glyphs drawn from simple shapes, densest last: . : - + x # @
+float glyph(vec2 g, float level){
+ vec2 d=abs(g-.5);
+ float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
+ if(level<1.) return 0.;
+ if(level<2.) return dot1;
+ if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
+ float h=step(d.y,.06)*step(d.x,.32);
+ if(level<4.) return h;
+ float v=step(d.x,.08)*step(d.y,.3);
+ if(level<5.) return max(h,v);
+ vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
+ vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
+ float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
+ if(level<6.) return max(x,h);
+ float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
+ if(level<7.) return hash2;
+ return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
+}
 
-/* ---- Forme's Contours (src/registry/contours-shader.tsx) behind the page, in the theme's
-   colours: accent lines, secondary index lines ---- */
-shader($("#contours"), CONTOURS, {
-  ratio: 1, speed: 0.35, start: 20,
+void main(){
+ vec2 CELL=floor(vec2(7.,12.)*u_ratio+.5);
+ vec2 cell=floor(gl_FragCoord.xy/CELL);
+ vec2 center=(cell+.5)*CELL;
+ vec2 p=(center-.5*u_resolution)/u_resolution.y*2.2;
+ float t=u_time;
+ float hl=height(p,t)*16.;
+ float f=fract(hl);
+ // contour lines become dense glyphs; every fifth is an index line in the second colour
+ float band=1.-smoothstep(.0,.13,min(f,1.-f));
+ float index=step(mod(floor(hl+.5),5.),.5);
+ // the pointer: a soft lens that wakes the glyphs, and slow rings spreading out from it
+ float d=length(center-u_mouse*u_resolution)/u_ratio;
+ float lens=exp(-d*d/(2.*130.*130.))*u_hover;
+ float ring=pow(max(sin(d*.055-t*2.6),0.),6.)*exp(-d/240.)*u_hover;
+ float grain=step(.93,hash(cell))*.18;
+ float v=clamp(grain+band*(.42+.25*index)+lens*.6+ring*.35,0.,1.);
+ float g=glyph(fract(gl_FragCoord.xy/CELL),floor(v*7.99));
+ vec3 col=mix(u_color,u_index,max(index*band,ring));
+ float a=g*(.16+.6*v)*(.72+.28*max(lens,band));
+ gl_FragColor=vec4(mix(u_bg,col,a),1.);
+}`;
+
+/* ---- behind the page: the contour terrain from Forme's Contours, drawn as ASCII with the
+   glyphs from Forme's Planet shader. The pointer wakes the glyphs around it. ---- */
+shader($("#contours"), ASCII_FIELD, {
+  ratio: 1.5, speed: 0.3, start: 20, pointer: window, hoverable: true,
   size: () => [innerWidth, innerHeight],
-  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_zoom", 2.4); set("u_levels", 22); set("u_gain", 1); },
+  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); },
 });
 
 const banner = $(".banner");

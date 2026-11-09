@@ -3,322 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anushree Kasturi · CS Student · Engineer · Builder</title>
-<meta name="description" content="Portfolio of Anushree Kasturi, a computer science student working on AI, machine learning and algorithms.">
-<meta name="theme-color" content="#0a0b0a">
-<meta property="og:title" content="Anushree Kasturi · CS Student · Engineer · Builder">
-<meta property="og:description" content="AI / ML · DSA · building things that think.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0b0a'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak_</text></svg>">
+<title>Anushree Kasturi</title>
+<meta name="description" content="Anushree Kasturi, computer science student at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems.">
+<meta name="theme-color" content="#0c0d0c">
+<meta property="og:title" content="Anushree Kasturi">
+<meta property="og:description" content="CS student building across AI/ML, full-stack and intelligent systems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230c0d0c'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="boot" aria-hidden="true"><pre id="boot-log"></pre></div>
-<div class="cursor" aria-hidden="true"><span class="c-dot"></span><span class="c-ring"><span class="c-label"></span></span></div>
-<div class="progress" aria-hidden="true"></div>
-
-<header class="nav">
-  <a href="#top" class="logo mono">ak<span class="acc blink">_</span></a>
-  <nav class="links mono">
-    <a href="#about"><i>01</i>about</a>
-    <a href="#work"><i>02</i>work</a>
-    <a href="#lab"><i>03</i>lab</a>
-    <a href="#activity"><i>04</i>activity</a>
-    <a href="#contact"><i>05</i>contact</a>
+<header class="nav wrap">
+  <a href="#top" class="logo">ak<span class="acc">.</span></a>
+  <nav>
+    <a href="#work">work</a>
+    <a href="#experience">experience</a>
+    <a href="#contact">contact</a>
   </nav>
-  <div class="nav-right mono">
-    <span class="clock" id="clock">--:--:--</span>
-    <button class="kbd" id="open-pal" title="Command palette">⌘K</button>
-  </div>
 </header>
 
-<main id="top">
+<main id="top" class="wrap">
 
-  <!-- ============ HERO ============ -->
-  <section id="hero">
-    <canvas id="field" aria-hidden="true"></canvas>
-    <div class="hero-grid wrap">
-      <div class="hero-copy" id="hero-copy">
-        <div class="hero-top">
-          <a class="avatar" id="avatar-link" target="_blank" rel="noopener"><img id="avatar" alt="" width="64" height="64" decoding="async"></a>
-          <p class="chip mono"><span class="pulse"></span><span id="status"></span></p>
-        </div>
-        <h1 class="hero-name" aria-label="">
-          <span class="line"><span id="first"></span></span>
-          <span class="line serif"><span id="last"></span><span class="acc">.</span></span>
-        </h1>
-        <p class="roles mono"><span class="dim">~/</span><span class="acc">$</span> <span id="role"></span><span class="caret">▍</span></p>
-        <p class="tagline" id="tagline"></p>
-        <div class="cta">
-          <a href="#work" class="btn primary magnetic"><span>see the work</span><span class="arr">↓</span></a>
-          <a href="#contact" class="btn magnetic"><span>say hello</span><span class="arr">↗</span></a>
-        </div>
-      </div>
-      <figure class="hero-art" id="hero-art">
-        <div class="hud mono" aria-hidden="true">
-          <span class="tl">θ <b id="hud-a">0.00</b></span><span class="tr">φ <b id="hud-b">0.00</b></span>
-          <span class="bl">verts <b>9000</b></span><span class="br"><b id="fps">60</b> fps</span>
-        </div>
-        <pre id="shape" aria-label="Rotating ASCII 3D shape. Click to morph"></pre>
-        <figcaption class="mono"><span>fig.01 · <b id="shape-name">torus</b></span><span class="dim">click to morph · drag to spin</span></figcaption>
-      </figure>
-    </div>
-    <div class="hero-foot wrap mono">
-      <span><span class="dim">loc</span> <span id="loc"></span></span>
-      <span class="scroll-hint">scroll <span class="line-anim"></span></span>
-      <span class="dim">press <span class="kbd-i">⌘K</span></span>
+  <section class="hero">
+    <img class="avatar" src="https://avatars.githubusercontent.com/u/219416439?s=240&v=4" alt="Anushree Kasturi" width="72" height="72">
+    <h1>Anushree<br><span class="outline">Kasturi</span><span class="acc">.</span></h1>
+    <p class="lede">CS student building things, breaking things, and learning along the way, across <b>AI/ML</b>, <b>full-stack development</b> and <b>intelligent systems</b>.</p>
+    <ul class="meta">
+      <li><span class="dot"></span>open to internships</li>
+      <li>B.Tech CSE @ Amrita '28</li>
+      <li>Bengaluru · <span id="clock">IST</span></li>
+    </ul>
+  </section>
+
+  <section class="row" id="about">
+    <h2 class="label"><i>01</i>about</h2>
+    <div>
+      <p class="prose">Third-year Computer Science undergrad at <b>Amrita School of Engineering, Bengaluru</b>. I turn ideas and real-world problems into working applications, from a Bayesian road-risk engine for Bengaluru to an ML-driven network controller. Outside of shipping projects you'll find me at hackathons, technical quizzes and coding challenges.</p>
+      <dl class="stats">
+        <div><dt>9.12</dt><dd>CGPA · B.Tech CSE</dd></div>
+        <div><dt>6</dt><dd>projects built</dd></div>
+        <div><dt>4</dt><dd>live deployments</dd></div>
+        <div><dt>5th</dt><dd>Night Shift Startathon '25</dd></div>
+      </dl>
+      <dl class="skills">
+        <div><dt>Languages</dt><dd>Python, Java, C, JavaScript, SQL, Scala</dd></div>
+        <div><dt>AI / ML</dt><dd>scikit-learn, LangChain, LangGraph, LlamaIndex, Ollama, vLLM, Gradio, Streamlit, W&amp;B</dd></div>
+        <div><dt>Backend &amp; data</dt><dd>Flask, Node.js, Express, Spring Boot, Kafka, Spark, MySQL, SQLite</dd></div>
+        <div><dt>Frontend &amp; tools</dt><dd>React, HTML, CSS, Git, Postman, Render, Vercel, Claude Code, Cursor, MCP</dd></div>
+      </dl>
     </div>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="mq-row big"><div class="mq-track" id="mq1"></div></div>
-    <div class="mq-row small mono"><div class="mq-track" id="mq2"></div></div>
-  </div>
+  <section class="row" id="work">
+    <h2 class="label"><i>02</i>work</h2>
+    <div class="projects">
 
-  <!-- ============ ABOUT ============ -->
-  <section id="about" class="wrap section">
-    <div class="sec-head" data-reveal data-n="01">
-      <span class="idx mono">01</span>
-      <h2><span data-scramble>About</span> <em class="serif">me</em></h2>
-      <span class="note mono">// whoami</span>
-    </div>
-    <div class="about-grid">
-      <div class="window frame" data-reveal>
-        <div class="win-bar mono"><i></i><i></i><i></i><span>~/anushree/about.md</span></div>
-        <div class="win-body">
-          <p class="mono dim">$ cat about.md</p>
-          <div id="about-text" class="about-text"></div>
+      <details>
+        <summary><i>01</i><b>Find the Intruder</b><span class="kind">Intrusion detection</span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>A log-forensics engine that buries attackers in ~1,000 lines of normal traffic, then finds them, correlates their events into one incident and rebuilds the kill chain with log-line evidence, MITRE ATT&amp;CK mapping and recommended response actions.</p>
+          <p>Catches reconnaissance, brute force, credential stuffing, success-after-failure pivots, impossible travel, privilege escalation and exfiltration. A zero-dependency Python package + CLI is the engine; a single-file web console runs the same logic in the browser.</p>
+          <ul class="hl"><li>23 tests in CI on Python 3.9 &amp; 3.12</li><li>Zero dependencies, pure stdlib</li><li>Benign decoy never flagged</li></ul>
+          <p class="tags">Python · JavaScript · GitHub Actions · MITRE ATT&amp;CK</p>
+          <p class="links"><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/algothon" target="_blank" rel="noopener">code ↗</a></p>
         </div>
-      </div>
-      <div class="stats" id="stats"></div>
-    </div>
-    <div class="skills" id="skills"></div>
-  </section>
+      </details>
 
-  <!-- ============ MANIFESTO (pinned) ============ -->
-  <section class="manifesto" id="manifesto">
-    <div class="pin">
-      <div class="wrap">
-        <p class="mono kick"><span class="acc">●</span> manifesto.txt</p>
-        <p class="mf-text" id="mf-text"></p>
-        <div class="mf-bar"><i id="mf-bar"></i></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ WORK ============ -->
-  <section id="work" class="wrap section">
-    <div class="sec-head" data-reveal data-n="02">
-      <span class="idx mono">02</span>
-      <h2><span data-scramble>Selected</span> <em class="serif">work</em></h2>
-      <span class="note mono">// click a card to open it</span>
-    </div>
-    <div class="projects" id="projects"></div>
-
-    <div class="sec-head small" data-reveal>
-      <span class="idx mono">02.1</span>
-      <h3>git log <em class="serif">--experience</em></h3>
-    </div>
-    <div class="gitlog mono" id="gitlog"></div>
-  </section>
-
-  <!-- ============ ACHIEVEMENTS (horizontal pinned) ============ -->
-  <section class="hz" id="honors">
-    <div class="pin">
-      <div class="hz-head wrap">
-        <span class="idx mono">02.2</span>
-        <h3>Honors <em class="serif">&amp; wins</em></h3>
-        <span class="mono dim hz-count"><b id="hz-i">01</b> / <span id="hz-n">05</span></span>
-      </div>
-      <div class="hz-track" id="hz-track"></div>
-    </div>
-  </section>
-
-  <!-- ============ LAB ============ -->
-  <section id="lab" class="wrap section">
-    <div class="sec-head" data-reveal data-n="03">
-      <span class="idx mono">03</span>
-      <h2><span data-scramble>The</span> <em class="serif">lab</em></h2>
-      <span class="note mono">// interactive · runs entirely in your browser</span>
-    </div>
-    <div class="lab-tabs mono" role="tablist" data-reveal>
-      <button class="on" data-tab="nn" role="tab">01 · neural net</button>
-      <button data-tab="path" role="tab">02 · pathfinding</button>
-      <button data-tab="sort" role="tab">03 · sorting</button>
-    </div>
-
-    <!-- neural net -->
-    <div class="lab frame panel on" id="tab-nn" data-reveal>
-      <div class="lab-top">
-        <div class="seg mono" id="nn-data"></div>
-        <div class="lab-ctl mono">
-          <button class="btn sm" id="nn-reset">reset</button>
-          <button class="btn sm primary" id="nn-run">train ▶</button>
+      <details>
+        <summary><i>02</i><b>PotholeRisk</b><span class="kind">Bengaluru risk engine</span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>A real-time Bayesian road-risk dashboard for Bengaluru that combines live weather, traffic and pothole-density data into a continuously updated driving-risk estimate.</p>
+          <p>The browser only talks to an Express server, which proxies the OpenWeather API with the key injected server-side, so it never reaches the frontend. Next up: CV-based pothole detection and route safety scoring.</p>
+          <ul class="hl"><li>Bayesian risk model</li><li>API keys kept server-side</li><li>Deployed on Render</li></ul>
+          <p class="tags">Node.js · Express · JavaScript · OpenWeather API</p>
+          <p class="links"><a href="https://potholerisk.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/Potholerisk" target="_blank" rel="noopener">code ↗</a></p>
         </div>
-      </div>
-      <div class="nn-grid">
-        <div class="nn-plot"><canvas id="nn-plot"></canvas><span class="mono dim nn-hint">hover to probe the network</span></div>
-        <div class="nn-side">
-          <canvas id="nn-net"></canvas>
-          <div class="nn-stats mono">
-            <div><span class="dim">epoch</span><b id="nn-ep">0</b></div>
-            <div><span class="dim">loss</span><b id="nn-loss">-</b></div>
-            <div><span class="dim">accuracy</span><b id="nn-acc">-</b></div>
-            <div><span class="dim">arch</span><b>2·16·16·1</b></div>
-          </div>
-          <pre class="spark mono" id="nn-spark"></pre>
-          <p class="mono dim nn-cap">tanh hidden · sigmoid out · adam · backprop written by hand, no libraries</p>
-        </div>
-      </div>
-    </div>
+      </details>
 
-    <!-- pathfinding -->
-    <div class="lab frame panel" id="tab-path">
-      <div class="lab-top">
-        <div class="seg mono" id="pf-algos"></div>
-        <div class="lab-ctl mono">
-          <button class="btn sm" id="pf-maze">maze</button>
-          <button class="btn sm" id="pf-clear">clear</button>
-          <button class="btn sm primary" id="pf-run">find path ▶</button>
+      <details>
+        <summary><i>03</i><b>AI-SDN Traffic</b><span class="kind">ML-guided routing</span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>A simulated SDN controller that classifies flows, forecasts congestion and reroutes traffic. A Random Forest classifies traffic (voice / video / web / bulk), a regressor forecasts each link's next-interval utilization, and the controller runs Dijkstra with load- and forecast-aware weights.</p>
+          <p>On the same 8-switch partial-mesh topology and traffic, adaptive routing beat static routing across the board.</p>
+          <ul class="hl"><li>~99.7% classification accuracy</li><li>~15% lower average latency</li><li>~39% lower peak utilization</li><li>23 → 0 congested flows</li></ul>
+          <p class="tags">Python · scikit-learn · NetworkX · Mininet</p>
+          <p class="links"><a href="https://github.com/AnushreeKasturi/AI-SDN-Traffic-Management" target="_blank" rel="noopener">code ↗</a></p>
         </div>
-      </div>
-      <canvas id="pf" aria-label="Pathfinding grid. Drag to draw walls"></canvas>
-      <div class="lab-stats mono">
-        <span><span class="dim">algo</span> <b id="pf-name">A*</b></span>
-        <span><span class="dim">visited</span> <b id="pf-vis">0</b></span>
-        <span><span class="dim">path</span> <b id="pf-len">-</b></span>
-        <span class="legend dim">drag to draw walls · <span class="acc">S</span> start · <span class="acc">E</span> end</span>
-      </div>
-    </div>
+      </details>
 
-    <!-- sorting -->
-    <div class="lab frame panel" id="tab-sort">
-      <div class="lab-top">
-        <div class="seg mono" id="algos"></div>
-        <div class="lab-ctl mono">
-          <label>speed <input type="range" id="speed" min="1" max="24" value="6"></label>
-          <button class="btn sm" id="shuffle">shuffle</button>
-          <button class="btn sm primary" id="run">run ▶</button>
+      <details>
+        <summary><i>04</i><b>Student Performance Predictor</b><span class="kind">Deployed ML app</span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>Predicts final scores from attendance, study hours, internal marks and assignments with a scikit-learn regression model, wrapped in a full app: hashed-password auth, per-user history in SQLite and Plotly dashboards.</p>
+          <ul class="hl"><li>End-to-end: model → app → deploy</li><li>Hashed-password auth</li><li>Interactive Plotly analytics</li></ul>
+          <p class="tags">Python · Flask · scikit-learn · SQLite · Plotly</p>
+          <p class="links"><a href="https://student-performance-predictor-1mlt.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/student-performance-predictor" target="_blank" rel="noopener">code ↗</a></p>
         </div>
-      </div>
-      <pre class="sortview" id="sortview" aria-label="Sorting visualizer"></pre>
-      <div class="lab-stats mono">
-        <span><span class="dim">algo</span> <b id="s-name">quick sort</b></span>
-        <span><span class="dim">time</span> <b id="s-big">O(n log n)</b></span>
-        <span><span class="dim">comparisons</span> <b id="s-cmp">0</b></span>
-        <span><span class="dim">writes</span> <b id="s-swp">0</b></span>
-        <span class="legend"><i class="cm"></i>compare <i class="sw"></i>write</span>
-      </div>
+      </details>
+
+      <details>
+        <summary><i>05</i><b>Heritage Explorer</b><span class="kind">Virtual museum</span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>An interactive virtual museum for five of India's best-known museums (CSMVS Mumbai, Victoria Memorial, the Indian Museum, Government Museum Chennai and Salar Jung), with galleries, a ticket-booking flow and dark mode.</p>
+          <ul class="hl"><li>5 museums, themed per museum</li><li>Ticket-booking simulation</li><li>Responsive + dark mode</li></ul>
+          <p class="tags">HTML · CSS · JavaScript</p>
+          <p class="links"><a href="https://virtual-museum-explorer.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/virtual-museum-explorer" target="_blank" rel="noopener">code ↗</a></p>
+        </div>
+      </details>
+
+      <details>
+        <summary><i>06</i><b>Startup Survival × News Sentiment</b><span class="kind">Big-data research <em>in progress</em></span><span class="yr">2026</span></summary>
+        <div class="body">
+          <p>Does public news sentiment about a startup improve survival prediction beyond funding data alone? A 2×2 experiment: logistic regression vs. SVM, each with financial-only and financial + sentiment features. Only results from real runs get reported.</p>
+          <p class="tags">Scala · Apache Spark · Hive · MLlib · HDFS</p>
+          <p class="links"><a href="https://github.com/AnushreeKasturi/bda_endsem" target="_blank" rel="noopener">code ↗</a></p>
+        </div>
+      </details>
+
     </div>
   </section>
 
-  <!-- ============ ACTIVITY ============ -->
-  <section id="activity" class="wrap section">
-    <div class="sec-head" data-reveal data-n="04">
-      <span class="idx mono">04</span>
-      <h2><span data-scramble>Shipping</span> <em class="serif">log</em></h2>
-      <span class="note mono">// consistency &gt; intensity</span>
-    </div>
-    <div class="gh frame" data-reveal>
-      <div class="gh-head">
-        <h3>GitHub Activity</h3>
-        <span class="gh-total" id="gh-total">loading…</span>
-      </div>
-      <div class="gh-scroll" data-lenis-prevent>
-        <div class="gh-inner">
-          <div class="gh-months" id="gh-months"></div>
-          <div class="gh-grid" id="gh-grid"></div>
-        </div>
-      </div>
-      <div class="gh-foot">
-        <span>Less active</span>
-        <span class="gh-legend"><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More active</span></span>
-      </div>
-      <div class="gh-stats mono" id="gh-stats"></div>
-      <div class="gh-tip" id="gh-tip" role="tooltip"></div>
-    </div>
-
-    <div class="now" id="now"></div>
+  <section class="row" id="experience">
+    <h2 class="label"><i>03</i>experience</h2>
+    <ol class="timeline">
+      <li><span class="when">2024 – 2028</span><div><b>B.Tech, Computer Science</b><span class="org">Amrita School of Engineering, Bengaluru · CGPA 9.12</span></div></li>
+      <li><span class="when">Jul 2026</span><div><b>Software Engineering Job Simulation</b><span class="org">JPMorgan Chase &amp; Co. · Forage</span><p>Kafka integration, H2 persistence and a REST API controller.</p></div></li>
+      <li><span class="when">Feb 2026</span><div><b>Generative AI in Action</b><span class="org">IBM SkillsBuild</span><p>LLMs and retrieval-augmented generation in real-world patterns.</p></div></li>
+      <li><span class="when">2026</span><div><b>Python</b><span class="org">Kaggle</span></div></li>
+      <li><span class="when">Aug 2025</span><div><b>5th place, The Night Shift Startathon</b><span class="org">ACE &amp; AMAL Club, Amrita</span></div></li>
+      <li><span class="when">2022 – 2024</span><div><b>High School, Computer Science</b><span class="org">The Amaatra Academy · 90.4%</span></div></li>
+    </ol>
   </section>
 
-  <!-- ============ CONTACT ============ -->
-  <section id="contact" class="wrap section">
-    <div class="sec-head" data-reveal data-n="05">
-      <span class="idx mono">05</span>
-      <h2><span data-scramble>Contact</span></h2>
-      <span class="note mono">// open to internships & collaborations</span>
+  <section class="row" id="activity" hidden>
+    <h2 class="label"><i>04</i>activity</h2>
+    <div>
+      <div class="heat" id="heat" role="img"></div>
+      <p class="heat-cap" id="heat-cap"></p>
     </div>
-    <div class="contact-grid">
-      <div class="contact-copy" data-reveal>
-        <p class="big">Let's build something <em class="serif acc">remarkable</em>.</p>
-        <button class="email magnetic" id="email" data-label="copy">
-          <span id="email-text"></span><span class="mono copied" id="copied">copied ✓</span>
-        </button>
-        <ul class="socials mono" id="socials"></ul>
-      </div>
-      <div class="terminal frame" id="terminal" data-reveal>
-        <div class="win-bar mono"><i></i><i></i><i></i><span>guest@anushree: ~</span></div>
-        <div class="term-out mono" id="term-out" data-lenis-prevent></div>
-        <label class="term-line mono"><span class="acc">guest@anushree</span>:<span class="blue">~</span>$&nbsp;<input id="term-in" autocomplete="off" spellcheck="false" aria-label="Terminal input"></label>
-      </div>
-    </div>
+  </section>
+
+  <section class="row" id="now">
+    <h2 class="label"><i>05</i>now</h2>
+    <dl class="skills">
+      <div><dt>Building</dt><dd>A Scala + Spark pipeline testing whether public sentiment predicts startup survival</dd></div>
+      <div><dt>Learning</dt><dd>LLM agents with LangGraph, Spark &amp; Hive, Kafka and event-driven backends</dd></div>
+      <div><dt>Open to</dt><dd>SWE / ML internships, hackathon teams, open-source collaborations</dd></div>
+    </dl>
+  </section>
+
+  <section class="contact" id="contact">
+    <p class="label"><i>06</i>contact</p>
+    <a class="email" href="mailto:anushree.kasturi06@gmail.com">anushree.kasturi06<wbr>@gmail.com</a>
+    <ul class="socials">
+      <li><a href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub ↗</a></li>
+      <li><a href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+      <li><a href="https://leetcode.com/u/AnushreeKasturi/" target="_blank" rel="noopener">LeetCode ↗</a></li>
+      <li><a href="https://huggingface.co/Anushree24" target="_blank" rel="noopener">Hugging Face ↗</a></li>
+      <li><a href="https://x.com/Anushree_kastur" target="_blank" rel="noopener">X ↗</a></li>
+    </ul>
   </section>
 </main>
 
-<footer class="foot">
-  <pre id="ascii-name" aria-hidden="true"></pre>
-  <div class="foot-row wrap mono">
-    <span>© <span id="year"></span> <span id="foot-name"></span></span>
-    <span class="dim">hand-built in plain html, css &amp; js · try the konami code</span>
-    <a href="#top">back to top ↑</a>
-  </div>
+<footer class="foot wrap">
+  <span>© 2026 Anushree Kasturi</span>
+  <a href="#top">back to top ↑</a>
 </footer>
 
-<!-- back to top w/ progress ring -->
-<a href="#top" class="totop" id="totop" aria-label="Back to top">
-  <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20"/><circle cx="22" cy="22" r="20" id="totop-ring"/></svg><span>↑</span>
-</a>
-
-<!-- project overlay -->
-<div class="ov" id="ov" hidden>
-  <div class="ov-panel" id="ov-panel" data-lenis-prevent>
-    <div class="ov-bar mono">
-      <span id="ov-idx">01 / 05</span>
-      <div class="ov-nav"><button id="ov-prev" aria-label="Previous project">← prev</button><button id="ov-next" aria-label="Next project">next →</button><button id="ov-close" aria-label="Close">esc ✕</button></div>
-    </div>
-    <div class="ov-art"><pre id="ov-art"></pre></div>
-    <div class="ov-body wrap">
-      <div class="ov-main">
-        <p class="mono dim" id="ov-meta"></p>
-        <h2 id="ov-title"></h2>
-        <p class="ov-lede" id="ov-desc"></p>
-        <div class="ov-details" id="ov-details"></div>
-      </div>
-      <aside class="ov-side mono">
-        <div><span class="dim">stack</span><div class="tags" id="ov-tags"></div></div>
-        <div><span class="dim">highlights</span><ul id="ov-hl"></ul></div>
-        <div class="ov-links" id="ov-links"></div>
-      </aside>
-    </div>
-  </div>
-</div>
-
-<!-- command palette -->
-<div class="pal" id="pal" hidden>
-  <div class="pal-box frame" role="dialog" aria-label="Command palette">
-    <div class="pal-in mono"><span class="acc">›</span><input id="pal-in" placeholder="search sections, projects, actions…" autocomplete="off" spellcheck="false"></div>
-    <ul class="pal-list mono" id="pal-list" data-lenis-prevent></ul>
-    <div class="pal-foot mono dim"><span>↑↓ navigate</span><span>↵ select</span><span>esc close</span></div>
-  </div>
-</div>
-
-<canvas id="matrix" aria-hidden="true"></canvas>
-<div class="toast mono" id="toast" role="status"></div>
-
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" integrity="sha384-B2WBjDzEjJpYvhmi2UyEn7rektqkf5suS6sNoyyrf0EBAwBHdkiXxIlU0V5Ru2ed" crossorigin="anonymous"></script>
 <script src="main.js"></script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 const $ = (s) => document.querySelector(s);
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
-let set1 = () => {}; // float uniforms, bound to whichever shader is being tinted
 const token = (v) => { const h = getComputedStyle(document.documentElement).getPropertyValue(v).trim(); return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); };
 
 /* ---- a small WebGL runner for Forme's shaders (src/registry/shader-canvas.tsx): renders
@@ -37,7 +36,8 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
     gl.uniform1f(U("u_ratio"), r);
     draw(performance.now());
   };
-  const apply = () => { set1 = (n, v) => gl.uniform1f(U(n), v); tint((n, rgb) => gl.uniform3f(U(n), ...rgb)); };
+  const set = (n, v) => typeof v === "number" ? gl.uniform1f(U(n), v) : v.length === 3 ? gl.uniform3f(U(n), ...v) : gl.uniform3fv(U(n), v);
+  const apply = () => tint(set);
   const recolor = () => { apply(); draw(performance.now()); };
   apply();
   resize();
@@ -77,17 +77,44 @@ void main(){
 shader($("#contours"), CONTOURS, {
   ratio: 1, speed: 0.35, start: 20,
   size: () => [innerWidth, innerHeight],
-  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set1("u_zoom", 2.4); set1("u_levels", 22); set1("u_gain", 1); },
+  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_zoom", 2.4); set("u_levels", 22); set("u_gain", 1); },
 });
 
-/* ---- the header: the same contours, closer in and denser, like a survey map of
-   Bengaluru; the pin, coordinates and north arrow are HTML over it ---- */
 const banner = $(".banner");
-shader($("#terrain"), CONTOURS, {
-  ratio: 1.5, speed: 0.25, start: 61,
-  size: () => [banner.clientWidth, banner.clientHeight],
-  tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set1("u_zoom", 1.5); set1("u_levels", 30); set1("u_gain", 1.9); },
-});
+
+/* ---- the header: Forme's Dot grid (src/registry/dot-grid.tsx), a dot matrix with a slow
+   swell; dots near the pointer glow in the theme's accent colour ---- */
+(function dots() {
+  const node = $("#dots"), ctx = node.getContext("2d"), SP = 20;
+  const p = { x: 0, y: 0, tx: 0, ty: 0, s: 0, on: false };
+  let w = 0, h = 0, t = 0, last = performance.now(), visible = true, dot = "0,0,0", glow = "0,0,0";
+  const rgbOf = (v) => token(v).map((c) => Math.round(c * 255)).join(",");
+  const colors = () => { dot = rgbOf("--mute"); glow = rgbOf("--sig"); };
+  const paint = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    if (!REDUCED) t += dt;
+    p.x += (p.tx - p.x) * 0.25; p.y += (p.ty - p.y) * 0.25; p.s += ((p.on ? 1 : 0) - p.s) * 0.15;
+    ctx.clearRect(0, 0, w, h);
+    for (let y = SP / 2; y < h; y += SP) for (let x = SP / 2; x < w; x += SP) {
+      const swell = REDUCED ? 0 : 0.5 + 0.5 * Math.sin(x * 0.012 + y * 0.009 - t * 0.9);
+      const d = Math.hypot(x - p.x, y - p.y), g = p.s * Math.exp(-(d * d) / 7000);
+      ctx.fillStyle = g > 0.05 ? `rgba(${glow},${(0.35 + g * 0.65).toFixed(3)})` : `rgba(${dot},${(0.35 + swell * 0.25).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(x, y, 1.1 + g * 1.6, 0, 6.2832); ctx.fill();
+    }
+  };
+  const size = () => {
+    w = banner.clientWidth; h = banner.clientHeight;
+    const r = Math.min(devicePixelRatio || 1, 2);
+    node.width = w * r; node.height = h * r; ctx.setTransform(r, 0, 0, r, 0, 0); paint(performance.now());
+  };
+  colors(); size();
+  addEventListener("resize", size);
+  addEventListener("theme-change", () => { colors(); paint(performance.now()); });
+  banner.addEventListener("pointermove", (e) => { const b = node.getBoundingClientRect(); p.tx = e.clientX - b.left; p.ty = e.clientY - b.top; if (p.s < 0.02) { p.x = p.tx; p.y = p.ty; } p.on = true; });
+  banner.addEventListener("pointerleave", () => { p.on = false; });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(node);
+  (function loop(ms) { requestAnimationFrame(loop); if (visible && !document.hidden && ms - last >= 32) paint(ms); })(0);
+})();
 
 /* ---- Forme's Dock (src/registry/dock.tsx): icons swell toward the pointer ---- */
 (function dock() {

@@ -3,36 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anushree Kasturi · AI/ML and full-stack</title>
-<meta name="description" content="Anushree Kasturi, CS undergrad at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems.">
-<meta name="theme-color" content="#070b0a">
+<title>Anushree Kasturi · AI/ML, full-stack and open source</title>
+<meta name="description" content="Anushree Kasturi, CS undergrad at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems, and contributing to open source.">
+<meta name="theme-color" content="#060908">
 <meta property="og:title" content="Anushree Kasturi">
-<meta property="og:description" content="CS undergrad building across AI/ML, full-stack and intelligent systems.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23070b0a'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
+<meta property="og:description" content="CS undergrad building across AI/ML, full-stack and open source.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23060908'/><text x='50' y='66' font-family='sans-serif' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <a href="#main" class="skip">Skip to content</a>
 
-<!-- the margins: a still, dithered night scene behind the column -->
-<canvas id="margin" class="margin" aria-hidden="true"></canvas>
+<!-- Forme's Contours shader, behind everything: shows in the margins and through the banner -->
+<canvas id="contours" class="contours" aria-hidden="true"></canvas>
 
-<nav class="dock" aria-label="Sections">
-  <a href="#top" data-for="top" aria-label="Top"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Top</span></a>
-  <a href="#work" data-for="work" aria-label="Work"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Work</span></a>
-  <a href="#now" data-for="now" aria-label="Now"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Now</span></a>
-  <a href="#stack" data-for="stack" aria-label="Stack"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span>Stack</span></a>
-  <a href="#activity" data-for="activity" aria-label="Activity"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Activity</span></a>
-  <a href="#contact" data-for="contact" aria-label="Contact"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Contact</span></a>
-</nav>
+<!-- Forme's Dock (forme-amber.vercel.app/docs/dock), ported to plain JS in main.js -->
+<div class="dock-wrap">
+  <nav aria-label="Sections" class="forme-dock">
+    <ul>
+      <li data-for="top"><a href="#top" aria-label="Top"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="forme-dock-label">Top</span></a></li>
+      <li data-for="work"><a href="#work" aria-label="Work"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span><span class="forme-dock-label">Work</span></a></li>
+      <li data-for="oss"><a href="#oss" aria-label="Open source"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></span><span class="forme-dock-label">Open source</span></a></li>
+      <li data-for="now"><a href="#now" aria-label="Now"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="forme-dock-label">Now</span></a></li>
+      <li data-for="stack"><a href="#stack" aria-label="Stack"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg></span><span class="forme-dock-label">Stack</span></a></li>
+      <li data-for="activity"><a href="#activity" aria-label="Activity"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="forme-dock-label">Activity</span></a></li>
+      <li data-for="contact"><a href="#contact" aria-label="Contact"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span><span class="forme-dock-label">Contact</span></a></li>
+    </ul>
+  </nav>
+</div>
 
 <div class="col"><div class="band thin"></div></div>
 
 <header id="top" class="banner col">
-  <canvas id="scene" aria-hidden="true"></canvas>
   <h1>Anushree Kasturi</h1>
 </header>
 
@@ -51,8 +56,8 @@
     <p class="intro">
       I turn real-world problems into working software across AI/ML, full-stack and intelligent systems.
       Lately that's <a href="#work">Find the Intruder</a>, a log-forensics engine that rebuilds an attacker's kill chain,
-      <a href="#work">PotholeRisk</a>, a Bayesian road-risk engine for Bengaluru, and
-      <a href="#work">AI-SDN Traffic</a>, an ML-guided network controller.
+      and <a href="#work">PotholeRisk</a>, a Bayesian road-risk engine for Bengaluru. I'm also building
+      <a href="#work">Forme</a>, a React component library, and sending fixes to <a href="#oss">open source</a>.
     </p>
 
     <div class="cta">
@@ -62,9 +67,9 @@
     </div>
 
     <ul class="highlights" aria-label="Highlights">
+      <li><a href="#oss"><span class="sig">▸ </span><b>49 PRs</b> merged into open source</a></li>
       <li><span class="sig">▸ </span><b>9.12 CGPA</b> B.Tech CSE</li>
       <li><span class="sig">▸ </span><b>5th place</b> Night Shift Startathon '25</li>
-      <li><span class="sig">▸ </span><b>4 apps</b> deployed live</li>
     </ul>
   </section>
 
@@ -72,6 +77,14 @@
   <section id="work">
     <h2>Selected Work</h2>
     <ul class="cards">
+      <li class="wide"><a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">
+        <span class="shot"><img src="img/forme.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Component library · building with <span class="lav">Manas Dasari</span></span>
+        <span class="name">Forme <i>→</i></span>
+        <span class="tagline">Components for interfaces that feel alive: shaders, ASCII, navigation, inputs and feedback for React. The dock and the contour lines on this page are Forme components.</span>
+        <span class="proof">53 components across ten categories · free · source you install and own</span>
+      </a><span class="links"><a href="https://github.com/ManasDasri/forme" target="_blank" rel="noopener">code ↗</a></span></li>
+
       <li><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">
         <span class="shot"><img src="img/intruder.jpg" alt="" loading="lazy"></span>
         <span class="kind">Security · intrusion detection</span>
@@ -122,6 +135,32 @@
   </section>
 
   <div class="band"></div>
+  <section id="oss">
+    <h2>Open Source</h2>
+    <p class="note">pull requests merged into other people's projects · counted from GitHub, Nov 2026</p>
+    <dl class="tiles">
+      <div><dt>49</dt><dd>PRs merged</dd></div>
+      <div><dt>34</dt><dd>repositories</dd></div>
+      <div><dt>12.3k★</dt><dd>biggest repo, MyIP</dd></div>
+    </dl>
+    <ul class="prs">
+      <li><a href="https://github.com/jason5ng32/MyIP/pull/516" target="_blank" rel="noopener"><span class="repo">jason5ng32/MyIP <em>★ 12.3k</em></span><span class="t">Add npm to the service-status checks</span><span class="lang">JavaScript</span></a></li>
+      <li><a href="https://github.com/lingdojo/kana-dojo/pull/32106" target="_blank" rel="noopener"><span class="repo">lingdojo/kana-dojo <em>★ 3.8k</em></span><span class="t">Add a new Japanese false friend</span><span class="lang">TypeScript</span></a></li>
+      <li><a href="https://github.com/mxsm/rocketmq-rust/pull/11433" target="_blank" rel="noopener"><span class="repo">mxsm/rocketmq-rust <em>★ 1.5k</em></span><span class="t">Rename SessionCloseOutcome to SessionCloseStatus in rocketmq-transport</span><span class="lang">Rust</span></a></li>
+      <li><a href="https://github.com/ZHangZHengEric/Sage/pull/287" target="_blank" rel="noopener"><span class="repo">ZHangZHengEric/Sage <em>★ 1.2k</em></span><span class="t">Align the test directory guide with the current CI suites</span><span class="lang">Python</span></a></li>
+      <li><a href="https://github.com/eugenioenko/ttt/pull/807" target="_blank" rel="noopener"><span class="repo">eugenioenko/ttt <em>★ 1.1k</em></span><span class="t">Add the editor.diffColorGutterNumbers setting</span><span class="lang">Go</span></a></li>
+      <li><a href="https://github.com/gdt050579/AppCUI-rs/pull/276" target="_blank" rel="noopener"><span class="repo">gdt050579/AppCUI-rs <em>★ 407</em></span><span class="t">Add a Conway's Game of Life example</span><span class="lang">Rust</span></a></li>
+      <li><a href="https://github.com/higher-kinded-j/higher-kinded-j/pull/1386" target="_blank" rel="noopener"><span class="repo">higher-kinded-j <em>★ 87</em></span><span class="t">Add foldRight, fold and foldMap to NonDetPath</span><span class="lang">Java</span></a></li>
+      <li><a href="https://github.com/c4punks/CWIST/pull/505" target="_blank" rel="noopener"><span class="repo">c4punks/CWIST</span><span class="t">Enforce the inbound HTTP/2 frame size limit</span><span class="lang">C</span></a></li>
+      <li><a href="https://github.com/Sprout-DevLabs/sprout/pull/80" target="_blank" rel="noopener"><span class="repo">Sprout-DevLabs/sprout</span><span class="t">Fix directory arguments in deps, dependents and context</span><span class="lang">Go</span></a></li>
+    </ul>
+    <p class="more">
+      <span class="mute">in review:</span> <a href="https://github.com/apache/airflow/pull/74535" target="_blank" rel="noopener">apache/airflow</a> · <a href="https://github.com/Submitty/Submitty/pull/13491" target="_blank" rel="noopener">Submitty</a> ·
+      <a href="https://github.com/pulls?q=is%3Apr+author%3AAnushreeKasturi+is%3Amerged+-user%3AAnushreeKasturi" target="_blank" rel="noopener">every merged PR on GitHub →</a>
+    </p>
+  </section>
+
+  <div class="band"></div>
   <section id="now">
     <h2>Now</h2>
     <p class="note" id="now-note">what's on my plate this semester</p>
@@ -133,6 +172,7 @@
 
     <div id="p-sem" role="tabpanel" class="groups">
       <div><h3>Building</h3><ul>
+        <li><a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a><span class="mute">, components for React, with Manas Dasari</span></li>
         <li><span>Startup Survival × News Sentiment</span><span class="mute">, a Scala + Spark pipeline</span></li>
       </ul></div>
       <div><h3>Learning</h3><ul>
@@ -140,9 +180,9 @@
         <li><span>Distributed data</span><span class="mute">, Spark and Hive</span></li>
         <li><span>Event-driven backends</span><span class="mute">, Kafka</span></li>
       </ul></div>
-      <div><h3>Next</h3><ul>
-        <li><span>CV pothole detection</span><span class="mute">, for PotholeRisk</span></li>
-        <li><span>Route safety scoring</span><span class="mute">, for PotholeRisk</span></li>
+      <div><h3>Contributing</h3><ul>
+        <li><a href="#oss">Open-source fixes</a><span class="mute">, Rust, Go, Python, TypeScript</span></li>
+        <li><a href="https://github.com/apache/airflow/pull/74535" target="_blank" rel="noopener">apache/airflow</a><span class="mute">, PR in review</span></li>
       </ul></div>
       <div><h3>Open to</h3><ul>
         <li><span>SWE / ML internships</span></li>
@@ -152,6 +192,7 @@
     </div>
 
     <ol id="p-log" role="tabpanel" class="log" hidden>
+      <li><time>Oct 2026</time><div><b>First open-source PRs merged</b><span>49 merged since, across 34 repositories</span></div></li>
       <li><time>Jul 2026</time><div><b>Software Engineering Job Simulation</b><span>JPMorgan Chase &amp; Co. · Forage. Kafka, H2 persistence and a REST API controller</span></div></li>
       <li><time>Feb 2026</time><div><b>Generative AI in Action</b><span>IBM SkillsBuild. LLMs and retrieval-augmented generation</span></div></li>
       <li><time>2026</time><div><b>Python</b><span>Kaggle</span></div></li>
@@ -175,9 +216,24 @@
   <div class="band"></div>
   <section id="activity">
     <h2>Activity</h2>
-    <p class="note">GitHub contributions, live</p>
-    <div class="heat-wrap"><div class="heat" id="heat" role="img" aria-label="GitHub contribution calendar"></div></div>
-    <p class="heat-cap" id="heat-cap">loading…</p>
+    <p class="note">GitHub contributions over the last year, live</p>
+    <div class="gh">
+      <dl class="tiles" id="gh-tiles">
+        <div><dt id="s-total">–</dt><dd>contributions</dd></div>
+        <div><dt id="s-active">–</dt><dd>active days</dd></div>
+        <div><dt id="s-long">–</dt><dd>longest streak</dd></div>
+        <div><dt id="s-cur">–</dt><dd>current streak</dd></div>
+      </dl>
+      <div class="cal">
+        <div class="months" id="months"></div>
+        <div class="days" aria-hidden="true"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+        <div class="heat" id="heat" role="img" aria-label="GitHub contribution calendar"></div>
+      </div>
+      <div class="gh-foot">
+        <span id="tip">hover a day</span>
+        <span class="legend">less <i></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> more</span>
+      </div>
+    </div>
   </section>
 
   <div class="band"></div>
@@ -189,7 +245,7 @@
       <a href="mailto:anushree.kasturi06@gmail.com">anushree.kasturi06@gmail.com</a>
       <button id="copy" class="chip" aria-live="polite">copy</button>
     </div>
-    <p class="note" style="margin-top:32px">// here are my socials</p>
+    <p class="note" style="margin-top:32px">// elsewhere</p>
     <ul class="socials">
       <li><a href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub</a></li>
       <li><a href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn</a></li>
@@ -201,8 +257,8 @@
 
   <div class="band"></div>
   <footer>
-    <p class="mono mute">© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></p>
-    <a class="mono" href="#top">back to top ↑</a>
+    <p>The dock and the contour lines are from <a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a>.</p>
+    <p class="row"><span>© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></span><a href="#top">back to top ↑</a></p>
   </footer>
 </main>
 

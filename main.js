@@ -1,44 +1,88 @@
 const $ = (s) => document.querySelector(s);
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---- the scene: a still night of rolling hills under a moon, Bayer-dithered in her sage
-   and lavender. Drawn once (and again on resize); nothing moves. ---- */
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
-const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-const SKY = ["#070b0a", "#11132a", "#25234f", "#4a4690", "#a9a4e8"].map(hex);
-const HILL = ["#070b0a", "#0f1d16", "#22402c", "#4f7a46", "#b9dfa5"].map(hex);
-const MOON = ["#25234f", "#8f8ad0", "#e6ebe2"].map(hex);
+/* ---- Forme's Contours shader (src/registry/contours-shader.tsx), in plain WebGL.
+   Sage lines, lavender index lines; drifts slowly at 30fps, still with reduced motion,
+   paused when the tab is hidden. ---- */
+(function contours() {
+  const canvas = $("#contours");
+  const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
+  if (!gl) return;
+  const frag = `precision mediump float;
+uniform vec2 u_resolution; uniform float u_time; uniform vec3 u_color; uniform vec3 u_index;
+float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);
+ return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
+float height(vec2 p,float t){float h=0.0,a=.55;vec2 q=p+vec2(t*.04,-t*.025);
+ for(int i=0;i<4;i++){h+=a*noise(q);q=q*2.03+vec2(1.7,9.2)+t*.015;a*=.5;}return h;}
+void main(){
+ vec2 p=(gl_FragCoord.xy-.5*u_resolution)/u_resolution.y*2.4;
+ float t=u_time,levels=22.0,h=height(p,t)*levels,e=1.5/u_resolution.y*2.4;
+ vec2 g=vec2(height(p+vec2(e,0.),t)-height(p-vec2(e,0.),t),height(p+vec2(0.,e),t)-height(p-vec2(0.,e),t))*levels/(2.*e);
+ float px=length(g)*(2.4/u_resolution.y)+1e-4,d=abs(fract(h)-.5)*2.0,dist=(1.0-d)*.5/px;
+ float line=1.0-smoothstep(.5,1.5,dist),index=step(mod(floor(h+.5),5.0),.5),lineIndex=1.0-smoothstep(.75,1.8,dist);
+ vec3 c=vec3(.024,.035,.031)+u_color*.03*(h/levels);
+ c+=mix(u_color*.3,u_index*.85,index)*mix(line,lineIndex,index);
+ gl_FragColor=vec4(c*(1.0-.45*smoothstep(.6,1.9,length(p))),1.0);}`;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}"));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, frag));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = (n) => gl.getUniformLocation(prog, n);
+  gl.uniform3f(U("u_color"), 185 / 255, 223 / 255, 165 / 255);
+  gl.uniform3f(U("u_index"), 169 / 255, 164 / 255, 232 / 255);
+  const res = U("u_resolution"), time = U("u_time");
+  const size = () => {
+    const r = Math.min(devicePixelRatio, 1.25);
+    canvas.width = innerWidth * r; canvas.height = innerHeight * r;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(res, canvas.width, canvas.height);
+  };
+  const draw = (ms) => { gl.uniform1f(time, 20 + ms / 1000 * 0.35); gl.drawArrays(gl.TRIANGLES, 0, 6); };
+  size(); draw(0);
+  addEventListener("resize", () => { size(); draw(performance.now()); });
+  if (REDUCED) return;
+  let last = 0;
+  (function loop(ms) {
+    requestAnimationFrame(loop);
+    if (document.hidden || ms - last < 33) return;
+    last = ms; draw(ms);
+  })(0);
+})();
 
-function paint(canvas, px, moonX) {
-  const w = Math.ceil(canvas.clientWidth / px), h = Math.ceil(canvas.clientHeight / px);
-  if (!w || !h) return;
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext("2d"), img = ctx.createImageData(w, h), d = img.data;
-  const ar = w / h, mx = moonX * ar, my = 0.3, mr = 0.11;
-  // three ridges, back to front: [baseline, amplitude, frequency, phase, brightness]
-  const ridges = [[0.62, 0.06, 5, 1.3, 0.45], [0.74, 0.07, 3.4, 4.1, 0.7], [0.86, 0.05, 7, 2.2, 0.95]];
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const u = x / h, v = y / h, t = BAYER[(y & 3) * 4 + (x & 3)];
-    let pal = SKY, val = 0.15 + 0.5 * (1 - v / 1) ** 3;
-    const dm = Math.hypot(u - mx, v - my);
-    if (dm < mr) { pal = MOON; val = 0.55 + 0.45 * (1 - dm / mr); }
-    else val += 0.35 * Math.max(0, 1 - (dm - mr) / 0.35) ** 2;           // moon glow
-    for (const [b, a, f, p, br] of ridges) {
-      const top = b + a * Math.sin(u * f + p) + a * 0.4 * Math.sin(u * f * 2.7 + p * 2);
-      if (v > top) { pal = HILL; val = br * (0.55 + 0.45 * Math.max(0, 1 - (v - top) * 5)); }
-    }
-    const lv = Math.min(pal.length - 1, Math.max(0, val * (pal.length - 1)));
-    const c = pal[Math.floor(lv) + (lv % 1 > t ? 1 : 0)] || pal[pal.length - 1];
-    const i = (y * w + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-}
-const scenes = () => { paint($("#scene"), 4, 0.78); paint($("#margin"), 6, 0.85); };
-scenes();
-let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(scenes, 150); });
+/* ---- Forme's Dock (src/registry/dock.tsx): icons swell toward the pointer ---- */
+(function dock() {
+  const SIZE = innerWidth <= 640 ? 38 : 44, GAP = innerWidth <= 640 ? 5 : 8, PAD = innerWidth <= 640 ? 7 : 10, MAX_BOOST = 0.62;
+  const ul = $(".forme-dock ul"), items = [...ul.children];
+  let space = Infinity;
+  const magnify = (x) => {
+    if (x === null || REDUCED) return items.forEach((el) => el.style.setProperty("--forme-dock-scale", "1"));
+    const boosts = items.map((el) => { const r = el.getBoundingClientRect(), d = (x - (r.left + r.width / 2)) / 90; return MAX_BOOST * Math.exp(-d * d); });
+    const rest = items.length * SIZE + (items.length - 1) * GAP + PAD * 2;
+    const room = Math.max(0, space - rest), growth = SIZE * boosts.reduce((a, b) => a + b, 0), k = growth > room ? room / growth : 1;
+    items.forEach((el, i) => el.style.setProperty("--forme-dock-scale", String(1 + boosts[i] * k)));
+  };
+  ul.addEventListener("pointerenter", () => { space = $(".dock-wrap").clientWidth - 16; });
+  ul.addEventListener("pointermove", (e) => e.pointerType === "mouse" && magnify(e.clientX));
+  ul.addEventListener("pointerleave", () => magnify(null));
+
+  // the dot under the section in view
+  const mark = (id) => items.forEach((li) => li.dataset.for === id ? li.setAttribute("data-active", "") : li.removeAttribute("data-active"));
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && mark(scrollY < 80 ? "top" : e.target.id)), { rootMargin: "-40% 0px -55% 0px" });
+  items.forEach((li) => { const s = document.getElementById(li.dataset.for); if (s) io.observe(s); });
+  addEventListener("scroll", () => scrollY < 80 && mark("top"), { passive: true });
+  mark("top");
+})();
 
 /* ---- $ whoami typewriter ---- */
-const ROLES = ["CS student", "ML builder", "full-stack dev", "hackathon regular"];
+const ROLES = ["CS student", "ML builder", "open-source contributor", "full-stack dev"];
 if (!REDUCED) {
   const el = $("#role");
   let r = 0, n = ROLES[0].length, del = false;
@@ -46,7 +90,7 @@ if (!REDUCED) {
     const word = ROLES[r];
     n += del ? -1 : 1;
     el.textContent = word.slice(0, n);
-    let wait = del ? 45 : 90;
+    let wait = del ? 40 : 85;
     if (!del && n === word.length) { del = true; wait = 1800; }
     else if (del && n === 0) { del = false; r = (r + 1) % ROLES.length; wait = 300; }
     setTimeout(step, wait);
@@ -72,13 +116,6 @@ seg.addEventListener("keydown", (e) => {
   pick(i); tabs[i].focus();
 });
 
-/* ---- dock: mark the section in view ---- */
-const dock = [...document.querySelectorAll(".dock a")];
-const mark = (id) => dock.forEach((a) => a.dataset.for === id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
-const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && mark(scrollY < 80 ? "top" : e.target.id)), { rootMargin: "-40% 0px -55% 0px" });
-dock.forEach((a) => { const s = document.getElementById(a.dataset.for); if (s) io.observe(s); });
-addEventListener("scroll", () => scrollY < 80 && mark("top"), { passive: true });
-
 /* ---- copy email ---- */
 $("#copy").addEventListener("click", async (e) => {
   try { await navigator.clipboard.writeText("anushree.kasturi06@gmail.com"); e.target.textContent = "copied ✓"; setTimeout(() => e.target.textContent = "copy", 1800); } catch {}
@@ -88,16 +125,45 @@ $("#copy").addEventListener("click", async (e) => {
 const tick = () => $("#clock").textContent = new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) + " IST";
 tick(); setInterval(tick, 30000);
 
-/* ---- live GitHub contributions; fields coerced before they touch innerHTML ---- */
+/* ---- live GitHub calendar: stats, month labels, hover readout ---- */
+const fmtDay = (iso) => new Date(iso + "T00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+function streaks(days) {
+  let longest = 0, run = 0;
+  for (const d of days) { run = d.count ? run + 1 : 0; longest = Math.max(longest, run); }
+  let i = days.length - 1, cur = 0;
+  if (i >= 0 && !days[i].count) i--; // today not counted yet doesn't break the streak
+  while (i >= 0 && days[i].count) { cur++; i--; }
+  return { longest, cur };
+}
 fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
   .then((r) => r.ok ? r.json() : Promise.reject())
   .then(({ contributions }) => {
+    // coerce API fields before they touch innerHTML
     const days = contributions.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.date))
       .map((d) => ({ date: d.date, count: Math.max(0, d.count | 0), level: Math.min(4, Math.max(0, d.level | 0)) }));
     const pad = new Date(days[0].date + "T00:00").getDay(); // first column starts on Sunday
-    $("#heat").innerHTML = "<i style='visibility:hidden'></i>".repeat(pad) +
-      days.map((d) => `<i data-l="${d.level}" title="${d.count} on ${d.date}"></i>`).join("");
-    const total = days.reduce((s, d) => s + d.count, 0), active = days.filter((d) => d.count).length;
-    $("#heat-cap").textContent = `${total.toLocaleString()} contributions · ${active} active days in the last year`;
+    const cells = [...Array(pad).fill(null), ...days];
+    $("#heat").innerHTML = cells.map((d) => d ? `<i data-l="${d.level}" data-c="${d.count}" data-d="${d.date}"></i>` : `<i class="pad"></i>`).join("");
+    // a month's label sits over the first week that starts in it
+    const weeks = Math.ceil(cells.length / 7);
+    let prev = -1, months = "";
+    for (let w = 0; w < weeks; w++) {
+      const d = cells[w * 7] || cells[w * 7 + 6] || days[0], m = new Date(d.date + "T00:00").getMonth();
+      months += `<span>${m !== prev && w < weeks - 2 ? new Date(d.date + "T00:00").toLocaleString("en-US", { month: "short" }) : ""}</span>`;
+      prev = m;
+    }
+    $("#months").innerHTML = months;
+    const total = days.reduce((s, d) => s + d.count, 0), { longest, cur } = streaks(days);
+    $("#s-total").textContent = total.toLocaleString();
+    $("#s-active").textContent = days.filter((d) => d.count).length;
+    $("#s-long").textContent = longest + "d";
+    $("#s-cur").textContent = cur + "d";
+    $("#heat").setAttribute("aria-label", `${total} GitHub contributions in the last year`);
+    const tip = $("#tip");
+    $("#heat").addEventListener("pointerover", (e) => {
+      const c = e.target.dataset.c;
+      if (c !== undefined) tip.textContent = `${c === "0" ? "No" : c} contribution${c === "1" ? "" : "s"} on ${fmtDay(e.target.dataset.d)}`;
+    });
+    $("#heat").addEventListener("pointerleave", () => tip.textContent = "hover a day");
   })
-  .catch(() => { $("#activity").previousElementSibling.remove(); $("#activity").remove(); });
+  .catch(() => { $(".cal").remove(); $(".gh-foot").remove(); $("#gh-tiles").outerHTML = `<p class="note" style="margin:0">couldn't reach GitHub right now · <a href="https://github.com/AnushreeKasturi">see the profile ↗</a></p>`; });

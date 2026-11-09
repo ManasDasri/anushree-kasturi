@@ -63,65 +63,43 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
   })(0);
 }
 
-const ASCII_FIELD = `precision mediump float;
-uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; uniform float u_ratio; uniform float u_hover;
-uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg;
+const AURORA = `precision mediump float;
+uniform vec2 u_resolution; uniform float u_time; uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg;
 float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);
  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
-float height(vec2 p,float t){float h=0.0,a=.55;vec2 q=p+vec2(t*.04,-t*.025);
- for(int i=0;i<4;i++){h+=a*noise(q);q=q*2.03+vec2(1.7,9.2)+t*.015;a*=.5;}return h;}
-mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
-// Glyphs drawn from simple shapes, densest last: . : - + x # @
-float glyph(vec2 g, float level){
- vec2 d=abs(g-.5);
- float dot1=step(length((g-vec2(.5,.22))*vec2(1.,1.6)),.12);
- if(level<1.) return 0.;
- if(level<2.) return dot1;
- if(level<3.) return max(dot1,step(length((g-vec2(.5,.62))*vec2(1.,1.6)),.12));
- float h=step(d.y,.06)*step(d.x,.32);
- if(level<4.) return h;
- float v=step(d.x,.08)*step(d.y,.3);
- if(level<5.) return max(h,v);
- vec2 r=rot(.6)*(g-.5)*vec2(1.,.62);
- vec2 r2=rot(-.6)*(g-.5)*vec2(1.,.62);
- float x=max(step(abs(r.x),.06)*step(abs(r.y),.3),step(abs(r2.x),.06)*step(abs(r2.y),.3));
- if(level<6.) return max(x,h);
- float hash2=max(step(abs(abs(g.y-.5)-.14),.05)*step(d.x,.34),step(abs(abs(g.x-.5)-.15),.06)*step(d.y,.34));
- if(level<7.) return hash2;
- return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
-}
-
+float fbm(vec2 p){float v=0.0,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.03+7.7;a*=.5;}return v;}
 void main(){
- vec2 CELL=floor(vec2(7.,12.)*u_ratio+.5);
- vec2 cell=floor(gl_FragCoord.xy/CELL);
- vec2 center=(cell+.5)*CELL;
- vec2 p=(center-.5*u_resolution)/u_resolution.y*2.2;
- float t=u_time;
- float hl=height(p,t)*16.;
- float f=fract(hl);
- // contour lines become dense glyphs; every fifth is an index line in the second colour
- float band=1.-smoothstep(.0,.13,min(f,1.-f));
- float index=step(mod(floor(hl+.5),5.),.5);
- // the pointer: a soft lens that wakes the glyphs, and slow rings spreading out from it
- float d=length(center-u_mouse*u_resolution)/u_ratio;
- float lens=exp(-d*d/(2.*130.*130.))*u_hover;
- float ring=pow(max(sin(d*.055-t*2.6),0.),6.)*exp(-d/240.)*u_hover;
- float grain=step(.93,hash(cell))*.18;
- float v=clamp(grain+band*(.42+.25*index)+lens*.6+ring*.35,0.,1.);
- float g=glyph(fract(gl_FragCoord.xy/CELL),floor(v*7.99));
- vec3 col=mix(u_color,u_index,max(index*band,ring));
- float a=g*(.16+.6*v)*(.72+.28*max(lens,band));
- gl_FragColor=vec4(mix(u_bg,col,a),1.);
+ vec2 uv=gl_FragCoord.xy/u_resolution;
+ vec2 p=vec2(uv.x*u_resolution.x/u_resolution.y,uv.y);
+ float t=u_time*.06;
+ vec3 c=vec3(0.); float w=0.;
+ for(int i=0;i<3;i++){
+  float fi=float(i);
+  float fold=fbm(vec2(p.x*.7+fi*4.1,t*1.5+fi))*1.4;
+  float base=.5+fi*.09+.12*sin(p.x*1.3+fold*2.2+t*4.0+fi*2.0);
+  float above=p.y-base;
+  float curtain=smoothstep(-.06,.02,above)*exp(-max(above,0.0)*(3.2+fi));
+  float rays=.55+.45*pow(noise(vec2((p.x+fold*.3)*26.0,t*6.0+fi*9.0)),1.5);
+  float k=curtain*rays*(.75-fi*.18);
+  c+=mix(u_color,u_index,fi/2.)*k; w+=k;
+ }
+ // blend the curtains over the theme background in the theme's own colours, so light themes work too
+ float a=1.0-exp(-w*1.6);
+ vec3 o=mix(u_bg,c/max(w,.001),a*.6);
+ o+=(hash(gl_FragCoord.xy+fract(u_time))-.5)*.015;
+ gl_FragColor=vec4(o,1.0);
 }`;
 
-/* ---- behind the page: the contour terrain from Forme's Contours, drawn as ASCII with the
-   glyphs from Forme's Planet shader. The pointer wakes the glyphs around it. ---- */
-shader($("#contours"), ASCII_FIELD, {
-  ratio: 1.5, speed: 0.3, start: 20, pointer: window, hoverable: true,
+/* ---- behind the page: Forme's Aurora shader (src/registry/aurora-shader.tsx), slow
+   curtains in the theme's accent colours ---- */
+shader($("#contours"), AURORA, {
+  ratio: 1, speed: 0.6,
   size: () => [innerWidth, innerHeight],
   tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); },
 });
+
+
 
 const banner = $(".banner");
 
@@ -452,3 +430,6 @@ if (!REDUCED) {
   });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
 })();
+
+/* ---- résumé links appear once resume.pdf is deployed next to the page ---- */
+fetch("resume.pdf", { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => a.hidden = false); }).catch(() => {});

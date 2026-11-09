@@ -112,23 +112,30 @@ function shader(canvas, fragment, { ratio = 1.5, speed = 1, start = 0, tint, siz
 
 const themeTint = (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); };
 
-/* ---- behind the page: a night sky. A ringed planet with a moon on the left (lighting,
-   ringlets, the Cassini gap and both shadows follow Forme's Planet shader), a spiral galaxy
-   with dust lanes over a nebula on the right, three depths of stars and the odd shooting star.
-   Layers slide at their own speeds as the page scrolls. ---- */
+/* ---- behind the page: a night sky. Three depths of stars drawn as . + *, drifting and
+   sliding at their own speeds as the page scrolls, and a comet now and then. ---- */
 const SKY = `
 uniform vec2 u_left; uniform vec2 u_right; uniform float u_margin;
-const vec3 L=vec3(.62,.42,.66);
-float ringProfile(float r){
- float c=smoothstep(.0,.05,r)*smoothstep(.2,.16,r)*.35;
- float b=smoothstep(.16,.2,r)*smoothstep(.6,.58,r)*(.85+.15*sin(r*60.));
- float a=smoothstep(.65,.67,r)*smoothstep(1.,.97,r)*.62*(1.-.8*smoothstep(.85,.86,r)*smoothstep(.88,.87,r));
- return c+b+a;
+// a comet: a bright head and a tail that thins and fades behind it, falling steeply
+// through one margin so it stays in view
+float comet(vec2 c, float t, float per, float seed){
+ float k=floor(t/per+seed), ph=fract(t/per+seed);
+ if(ph>.32) return 0.;
+ float side=step(.5,hash(vec2(k,7.3+seed)));
+ float cx=mix(u_left.x,u_right.x,side);
+ vec2 A=vec2(cx+(hash(vec2(k,1.1+seed))-.5)*u_margin*.7,u_resolution.y*(.75+.3*hash(vec2(k,2.2+seed))));
+ vec2 dir=normalize(vec2(mix(-.55,.55,hash(vec2(k,3.3+seed))),-1.));
+ float len=u_resolution.y*.32, travel=ph/.26*u_resolution.y*.9;
+ vec2 rel=c-A; float al=dot(rel,dir), ac=length(rel-dir*al);
+ float behind=travel-al;
+ if(behind<0.||behind>len) return 0.;
+ float width=u_cell.x*(.6+1.6*exp(-behind/(u_cell.y*2.5)));
+ float body=(1.-smoothstep(width*.6,width,ac))*pow(1.-behind/len,1.6);
+ return body*(1.-smoothstep(.24,.32,ph));
 }
 void main(){
  vec2 cell=floor(gl_FragCoord.xy/u_cell), c=(cell+.5)*u_cell;
  float t=u_time, sc=u_scroll*u_ratio;
- vec3 Ld=normalize(L);
  float lum=0.; vec3 col=u_text; float star=0.;
 
  // three depths of stars, sliding with time and scroll
@@ -139,73 +146,10 @@ void main(){
   if(s.a>lum){lum=s.a;star=s.a;col=mix(u_text,s.rgb*u_text*1.15,.5);}
  }
 
- // the planet
- float Rp=u_margin*.3;
- vec2 P=u_left+vec2(0.,sc*.1);
- const float TILT=-.32, RS=.22;
- vec2 q=rot(TILT)*((c-P)/Rp);
- vec3 Lp=vec3(rot(TILT)*Ld.xy,Ld.z);
- const vec3 RD=vec3(0.,.22,-.9755), RN=vec3(0.,.9755,.22);
- float r2=dot(q,q);
- float e=length(vec2(q.x,q.y/RS)), ringR=(e-1.25)/(2.3-1.25);
- float ring=(ringR>0.&&ringR<1.)?ringProfile(ringR):0.;
- bool behind=q.y>0.&&r2<1.;
- if(r2<1.){
-  float z=sqrt(1.-r2);
-  vec3 n=vec3(q,z);
-  float diff=smoothstep(-.06,.55,dot(n,Lp));
-  float lat=q.y, lon=atan(q.x,z)+t*.02;
-  float b=sin(lat*8.+fbm(vec2(lon*1.5,lat*3.)+t*.01)*1.3)*.5+sin(lat*21.)*.12;
-  float shade=1.;
-  float t1=-dot(n,RN)/dot(Lp,RN);
-  if(t1>0.){vec3 X=n+Lp*t1;float rr=(length(vec2(X.x,dot(X,RD)))-1.25)/(2.3-1.25);if(rr>0.&&rr<1.)shade=1.-.7*ringProfile(rr)*smoothstep(0.,.25,diff);}
-  lum=(.04+.9*diff)*pow(z,.35)*shade*(.82+.18*b);
-  col=mix(u_text,u_color,.45+.25*b);
- } else {
-  float d=sqrt(r2)-1.;
-  lum=max(lum,exp(-d*14.)*.22*max(dot(vec3(rot(-TILT)*normalize(q),0.),Ld),.15));
- }
- if(!behind&&ring>0.){
-  vec3 Pr=vec3(q.x,0.,0.)+RD*(q.y/RS);
-  float bb=dot(Pr,Lp), closest=sqrt(max(dot(Pr,Pr)-bb*bb,0.));
-  float ps=1.-.85*(1.-smoothstep(.93,1.05,closest))*smoothstep(0.,-.2,bb);
-  float rl=ring*.95*ps;
-  lum=mix(lum,rl,clamp(ring*1.6,0.,1.));
-  col=mix(col,mix(u_index,u_text,.35),clamp(ring*1.6,0.,1.));
- }
- // a moon
- vec2 M=P+vec2(cos(t*.05+1.),sin(t*.05+1.)*.3)*Rp*2.8;
- vec2 mq=(c-M)/(Rp*.18);
- float m2=dot(mq,mq);
- if(m2<1.){vec3 mn=vec3(mq,sqrt(1.-m2));lum=(.03+.9*smoothstep(-.05,.6,dot(mn,Ld)))*(.85+.15*fbm(mq*3.));col=u_text;}
+ // comets now and then, in either margin
+ float cm=max(comet(c,t,9.,0.),comet(c,t,13.,.5));
+ if(cm>lum){lum=cm;star=0.;col=mix(u_text,u_color,.25);}
 
- // the galaxy: bulge, two arms with dust lanes, pink star-forming knots
- vec2 G=u_right+vec2(0.,sc*.06);
- vec2 g=rot(.6)*((c-G)/(u_margin*1.05)); g.y*=2.1;
- float r=length(g), a=atan(g.y,g.x);
- float sp=2.*a-6.*log(r+.04)+t*.05;
- float arms=pow(.5+.5*cos(sp),2.5);
- float lanes=pow(.5+.5*cos(sp-.9),6.)*smoothstep(.05,.25,r);
- float disk=exp(-r*2.6)*(.25+.8*arms)*(.55+.55*fbm(g*6.))*(1.-.7*lanes);
- float bulge=exp(-r*r*45.)*1.1;
- float knots=step(.8,fbm(g*14.+3.))*arms*exp(-r*2.)*.6;
- float gal=disk+bulge+knots;
- if(gal>lum*.9){lum=max(lum,gal);col=mix(mix(u_color,u_text,clamp(bulge*1.4,0.,1.)),u_index,clamp(knots*2.,0.,1.));}
- // a nebula behind it
- vec2 nq=(c-G)/u_resolution.y;
- float neb=smoothstep(.42,.85,fbm(nq*3.4+vec2(t*.008,0.)))*(1.-.6*ridge(nq*6.))*exp(-dot(nq,nq)*5.)*.45;
- if(neb>lum){lum=neb;col=mix(u_index,u_color,fbm(nq*5.));}
-
- // a shooting star every few seconds
- float per=7.5, k=floor(t/per), ph=fract(t/per);
- vec2 A=vec2(mix(u_left.x,u_right.x,step(.5,hash(vec2(k,7.3))))+(hash(vec2(k,1.1))-.5)*u_margin,u_resolution.y*(.55+.4*hash(vec2(k,2.2))));
- vec2 dir=normalize(vec2(mix(-1.,1.,step(.5,hash(vec2(k,3.3)))),-.5));
- float len=u_margin*1.3, head=clamp(ph/.1,0.,1.)*len;
- vec2 rel=c-A; float al=dot(rel,dir), ac=length(rel-dir*al);
- float trail=ph<.14?step(ac,u_cell.y*.55)*smoothstep(head-len*.5,head,al)*step(al,head)*(1.-ph/.14):0.;
- if(trail>lum){lum=trail;col=u_text;}
-
- // a cell still held by a star (nothing brighter drew over it) uses a star character
  float ch=(star>0.&&star>=lum)?starGlyph(star):ascii(pow(lum,.8));
  gl_FragColor=vec4(mix(u_bg,col,ch*clamp(.35+lum,0.,1.)),1.);
 }`;

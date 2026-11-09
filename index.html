@@ -3,322 +3,305 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anushree Kasturi · CS Student · Engineer · Builder</title>
-<meta name="description" content="Portfolio of Anushree Kasturi, a computer science student working on AI, machine learning and algorithms.">
-<meta name="theme-color" content="#0a0b0a">
-<meta property="og:title" content="Anushree Kasturi · CS Student · Engineer · Builder">
-<meta property="og:description" content="AI / ML · DSA · building things that think.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0b0a'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak_</text></svg>">
+<title>Anushree Kasturi · AI/ML, full-stack and open source</title>
+<meta name="description" content="Anushree Kasturi, CS undergrad at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems, and contributing to open source.">
+<meta name="theme-color" content="#060908">
+<meta property="og:title" content="Anushree Kasturi">
+<meta property="og:description" content="CS undergrad building across AI/ML, full-stack and open source.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.algorithmicbit.tech/anushree-kasturi/">
+<meta property="og:image" content="https://www.algorithmicbit.tech/anushree-kasturi/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Anushree Kasturi: CS at Amrita, AI/ML, full-stack and open source">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.algorithmicbit.tech/anushree-kasturi/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23060908'/><text x='50' y='66' font-family='sans-serif' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
+<a href="#main" class="skip">Skip to content</a>
 
-<div id="boot" aria-hidden="true"><pre id="boot-log"></pre></div>
-<div class="cursor" aria-hidden="true"><span class="c-dot"></span><span class="c-ring"><span class="c-label"></span></span></div>
-<div class="progress" aria-hidden="true"></div>
+<!-- behind the page: an ASCII flow field (main.js) -->
+<canvas id="contours" class="contours" aria-hidden="true"></canvas>
 
-<header class="nav">
-  <a href="#top" class="logo mono">ak<span class="acc blink">_</span></a>
-  <nav class="links mono">
-    <a href="#about"><i>01</i>about</a>
-    <a href="#work"><i>02</i>work</a>
-    <a href="#lab"><i>03</i>lab</a>
-    <a href="#activity"><i>04</i>activity</a>
-    <a href="#contact"><i>05</i>contact</a>
+<!-- Forme's Dock (forme-amber.vercel.app/docs/dock), ported to plain JS in main.js -->
+<div class="dock-wrap">
+  <nav aria-label="Sections" class="forme-dock">
+    <ul>
+      <li data-for="top"><a href="#top" aria-label="Top"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="forme-dock-label">Top</span></a></li>
+      <li data-for="work"><a href="#work" aria-label="Work"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span><span class="forme-dock-label">Work</span></a></li>
+      <li data-for="oss"><a href="#oss" aria-label="Open source"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></span><span class="forme-dock-label">Open source</span></a></li>
+      <li data-for="now"><a href="#now" aria-label="Now"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="forme-dock-label">Now</span></a></li>
+      <li data-for="stack"><a href="#stack" aria-label="Stack"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg></span><span class="forme-dock-label">Stack</span></a></li>
+      <li data-for="activity"><a href="#activity" aria-label="Activity"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span class="forme-dock-label">Activity</span></a></li>
+      <li data-for="contact"><a href="#contact" aria-label="Contact"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span><span class="forme-dock-label">Contact</span></a></li>
+      <li class="sep" aria-hidden="true"></li>
+      <li><button type="button" id="theme" aria-label="Theme" aria-haspopup="menu" aria-expanded="false"><span class="forme-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16c3.1 0 5.6-2.5 5.6-5.6C21.6 6 17.3 2 12 2z"/></svg></span><span class="forme-dock-label" id="theme-label">Theme</span></button>
+        <div class="theme-menu" id="theme-menu" role="menu" aria-label="Theme" hidden><p>VS Code themes</p></div></li>
+    </ul>
   </nav>
-  <div class="nav-right mono">
-    <span class="clock" id="clock">--:--:--</span>
-    <button class="kbd" id="open-pal" title="Command palette">⌘K</button>
-  </div>
+</div>
+
+<div class="col"><div class="band thin"></div></div>
+
+<header id="top" class="banner col">
+  <!-- Forme's Dot grid -->
+  <canvas id="dots" aria-hidden="true"></canvas>
+  <h1>Anushree Kasturi</h1>
 </header>
 
-<main id="top">
+<main id="main" class="col">
 
-  <!-- ============ HERO ============ -->
-  <section id="hero">
-    <canvas id="field" aria-hidden="true"></canvas>
-    <div class="hero-grid wrap">
-      <div class="hero-copy" id="hero-copy">
-        <div class="hero-top">
-          <a class="avatar" id="avatar-link" target="_blank" rel="noopener"><img id="avatar" alt="" width="64" height="64" decoding="async"></a>
-          <p class="chip mono"><span class="pulse"></span><span id="status"></span></p>
-        </div>
-        <h1 class="hero-name" aria-label="">
-          <span class="line"><span id="first"></span></span>
-          <span class="line serif"><span id="last"></span><span class="acc">.</span></span>
-        </h1>
-        <p class="roles mono"><span class="dim">~/</span><span class="acc">$</span> <span id="role"></span><span class="caret">▍</span></p>
-        <p class="tagline" id="tagline"></p>
-        <div class="cta">
-          <a href="#work" class="btn primary magnetic"><span>see the work</span><span class="arr">↓</span></a>
-          <a href="#contact" class="btn magnetic"><span>say hello</span><span class="arr">↗</span></a>
-        </div>
+  <section class="hero">
+    <div class="who">
+      <img src="https://avatars.githubusercontent.com/u/219416439?s=112&v=4" alt="" width="56" height="56">
+      <div>
+        <p class="whoami"><span class="mute">$ whoami</span> <span id="role">CS student</span><span class="caret" aria-hidden="true"></span></p>
+        <p class="sub">3rd year CSE, Amrita School of Engineering, Bengaluru · class of 2028</p>
+        <a class="pill" href="mailto:anushree.kasturi06@gmail.com"><span class="ping"></span>open to SWE / ML internships</a> <button type="button" class="kbd" data-palette title="Command palette">⌘K</button>
       </div>
-      <figure class="hero-art" id="hero-art">
-        <div class="hud mono" aria-hidden="true">
-          <span class="tl">θ <b id="hud-a">0.00</b></span><span class="tr">φ <b id="hud-b">0.00</b></span>
-          <span class="bl">verts <b>9000</b></span><span class="br"><b id="fps">60</b> fps</span>
-        </div>
-        <pre id="shape" aria-label="Rotating ASCII 3D shape. Click to morph"></pre>
-        <figcaption class="mono"><span>fig.01 · <b id="shape-name">torus</b></span><span class="dim">click to morph · drag to spin</span></figcaption>
-      </figure>
     </div>
-    <div class="hero-foot wrap mono">
-      <span><span class="dim">loc</span> <span id="loc"></span></span>
-      <span class="scroll-hint">scroll <span class="line-anim"></span></span>
-      <span class="dim">press <span class="kbd-i">⌘K</span></span>
+
+    <p class="intro">
+      I turn real-world problems into working software across AI/ML, full-stack and intelligent systems.
+      Lately that's <a href="#work">Find the Intruder</a>, a log-forensics engine that rebuilds an attacker's kill chain,
+      and <a href="#work">PotholeRisk</a>, a Bayesian road-risk engine for Bengaluru. I'm also building
+      <a href="#work">Forme</a>, a React component library, and sending fixes to <a href="#oss">open source</a>.
+    </p>
+
+    <div class="cta">
+      <a class="btn primary" href="mailto:anushree.kasturi06@gmail.com">Send an email →</a>
+      <a class="btn" href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="resume.pdf" target="_blank" rel="noopener" data-resume hidden>Resume (PDF)</a>
     </div>
+
+    <ul class="highlights" aria-label="Highlights">
+      <li><a href="#oss"><span class="sig">▸ </span><b>49 PRs</b> merged into open source</a></li>
+      <li><span class="sig">▸ </span><b>9.12 CGPA</b> B.Tech CSE</li>
+      <li><span class="sig">▸ </span><b>5th place</b> Night Shift Startathon '25</li>
+    </ul>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="mq-row big"><div class="mq-track" id="mq1"></div></div>
-    <div class="mq-row small mono"><div class="mq-track" id="mq2"></div></div>
-  </div>
+  <div class="band"></div>
+  <section id="work">
+    <h2>Selected Work</h2>
+    <ul class="cards">
+      <li class="wide"><a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">
+        <span class="shot"><span class="open">open ↗</span><img src="img/forme.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Component library · building with <span class="lav">Manas Dasari</span></span>
+        <span class="name">Forme <i>→</i></span>
+        <span class="tagline">Components for interfaces that feel alive: shaders, ASCII, navigation, inputs and feedback for React. The dock, the dot grid, the spotlight edges and the beam on this page are Forme components.</span>
+        <span class="proof">53 components across ten categories · free · source you install and own</span>
+      </a><span class="links"><a href="https://github.com/ManasDasri/forme" target="_blank" rel="noopener">code ↗</a></span></li>
 
-  <!-- ============ ABOUT ============ -->
-  <section id="about" class="wrap section">
-    <div class="sec-head" data-reveal data-n="01">
-      <span class="idx mono">01</span>
-      <h2><span data-scramble>About</span> <em class="serif">me</em></h2>
-      <span class="note mono">// whoami</span>
-    </div>
-    <div class="about-grid">
-      <div class="window frame" data-reveal>
-        <div class="win-bar mono"><i></i><i></i><i></i><span>~/anushree/about.md</span></div>
-        <div class="win-body">
-          <p class="mono dim">$ cat about.md</p>
-          <div id="about-text" class="about-text"></div>
-        </div>
+      <li><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">
+        <span class="shot"><span class="open">open ↗</span><img src="img/intruder.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Security · intrusion detection</span>
+        <span class="name">Find the Intruder <i>→</i></span>
+        <span class="tagline">Can you find an attacker hidden in a thousand lines of normal logs?</span>
+        <span class="proof">23 tests in CI · zero dependencies · benign decoy never flagged</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/algothon" target="_blank" rel="noopener">code ↗</a></span></li>
+
+      <li><a href="https://potholerisk.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><span class="open">open ↗</span><img src="img/potholerisk.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Full-stack · Bengaluru</span>
+        <span class="name">PotholeRisk <i>→</i></span>
+        <span class="tagline">How risky is a Bengaluru road right now, given the weather, traffic and potholes?</span>
+        <span class="proof">Bayesian risk model · API keys kept server-side · on Render</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/Potholerisk" target="_blank" rel="noopener">code ↗</a><span class="wake">demo sleeps on a free server · first load can take ~50s</span></span></li>
+
+      <li><a href="https://student-performance-predictor-1mlt.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><span class="open">open ↗</span><svg class="cover" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration: scores rising with study hours, with a fitted regression line">
+          <g class="grid"><line x1="34" x2="306" y1="20.0" y2="20.0"/><line x1="34" x2="306" y1="57.5" y2="57.5"/><line x1="34" x2="306" y1="95.0" y2="95.0"/><line x1="34" x2="306" y1="132.5" y2="132.5"/><line x1="34" x2="306" y1="170.0" y2="170.0"/></g>
+          <g class="pts"><circle cx="126.9" cy="101.5" r="2.6"/><circle cx="65.3" cy="121.3" r="2.6"/><circle cx="178.8" cy="94.4" r="2.6"/><circle cx="171.8" cy="91.2" r="2.6"/><circle cx="56.8" cy="142.9" r="2.6"/><circle cx="69.8" cy="131.8" r="2.6"/><circle cx="151.5" cy="99.3" r="2.6"/><circle cx="102.2" cy="126.6" r="2.6"/><circle cx="201.2" cy="68.1" r="2.6"/><circle cx="144.7" cy="109.8" r="2.6"/><circle cx="286.6" cy="27.3" r="2.6"/><circle cx="118.5" cy="108.0" r="2.6"/><circle cx="82.9" cy="121.0" r="2.6"/><circle cx="247.4" cy="58.2" r="2.6"/><circle cx="91.8" cy="140.1" r="2.6"/><circle cx="138.8" cy="115.5" r="2.6"/><circle cx="181.7" cy="86.6" r="2.6"/><circle cx="98.0" cy="121.2" r="2.6"/><circle cx="214.2" cy="87.3" r="2.6"/><circle cx="190.9" cy="82.3" r="2.6"/><circle cx="158.5" cy="106.0" r="2.6"/><circle cx="218.7" cy="55.9" r="2.6"/><circle cx="107.4" cy="132.3" r="2.6"/><circle cx="261.8" cy="66.2" r="2.6"/><circle cx="226.2" cy="81.3" r="2.6"/><circle cx="76.5" cy="98.4" r="2.6"/><circle cx="150.0" cy="102.4" r="2.6"/><circle cx="167.3" cy="102.9" r="2.6"/><circle cx="57.2" cy="148.6" r="2.6"/><circle cx="187.9" cy="105.9" r="2.6"/><circle cx="261.9" cy="66.7" r="2.6"/><circle cx="193.1" cy="69.0" r="2.6"/><circle cx="189.6" cy="109.6" r="2.6"/><circle cx="278.9" cy="46.7" r="2.6"/><circle cx="163.7" cy="99.6" r="2.6"/><circle cx="219.3" cy="79.6" r="2.6"/><circle cx="206.0" cy="58.8" r="2.6"/><circle cx="117.3" cy="116.3" r="2.6"/><circle cx="142.0" cy="107.0" r="2.6"/><circle cx="160.6" cy="100.9" r="2.6"/><circle cx="88.7" cy="123.3" r="2.6"/><circle cx="235.7" cy="66.8" r="2.6"/><circle cx="79.3" cy="129.8" r="2.6"/><circle cx="260.9" cy="48.0" r="2.6"/><circle cx="67.3" cy="149.0" r="2.6"/><circle cx="263.9" cy="54.0" r="2.6"/></g>
+          <line class="fit" x1="34" y1="147.5" x2="306" y2="42.5"/>
+          <text x="306" y="188" text-anchor="end">study hours →</text>
+          <text x="34" y="14">↑ predicted score</text>
+        </svg><span class="tag">illustration</span></span>
+        <span class="kind">Deployed ML app</span>
+        <span class="name">Student Performance Predictor <i>→</i></span>
+        <span class="tagline">Predicts final scores from attendance, study hours, internals and assignments.</span>
+        <span class="proof">model → app → deploy · hashed-password auth · Plotly dashboards</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/student-performance-predictor" target="_blank" rel="noopener">code ↗</a><span class="wake">demo sleeps on a free server · first load can take ~50s</span></span></li>
+
+      <li><a href="https://virtual-museum-explorer.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><span class="open">open ↗</span><img src="img/heritage.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Web · virtual museum</span>
+        <span class="name">Heritage Explorer <i>→</i></span>
+        <span class="tagline">Five of India's best-known museums, with galleries and ticket booking, in one place.</span>
+        <span class="proof">5 museums, themed per museum · responsive · dark mode</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/virtual-museum-explorer" target="_blank" rel="noopener">code ↗</a><span class="wake">demo sleeps on a free server · first load can take ~50s</span></span></li>
+    </ul>
+
+    <div class="also">
+      <div>
+        <p class="kind">ML · networking</p>
+        <a class="name" href="https://github.com/AnushreeKasturi/AI-SDN-Traffic-Management" target="_blank" rel="noopener">AI-SDN Traffic ↗</a>
+        <p class="tagline">Does an ML-guided controller beat static routing on the same network and traffic?</p>
+        <p class="proof">~99.7% flow classification · ~15% lower latency · ~39% lower peak load · 23 → 0 congested flows</p>
       </div>
-      <div class="stats" id="stats"></div>
-    </div>
-    <div class="skills" id="skills"></div>
-  </section>
-
-  <!-- ============ MANIFESTO (pinned) ============ -->
-  <section class="manifesto" id="manifesto">
-    <div class="pin">
-      <div class="wrap">
-        <p class="mono kick"><span class="acc">●</span> manifesto.txt</p>
-        <p class="mf-text" id="mf-text"></p>
-        <div class="mf-bar"><i id="mf-bar"></i></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ WORK ============ -->
-  <section id="work" class="wrap section">
-    <div class="sec-head" data-reveal data-n="02">
-      <span class="idx mono">02</span>
-      <h2><span data-scramble>Selected</span> <em class="serif">work</em></h2>
-      <span class="note mono">// click a card to open it</span>
-    </div>
-    <div class="projects" id="projects"></div>
-
-    <div class="sec-head small" data-reveal>
-      <span class="idx mono">02.1</span>
-      <h3>git log <em class="serif">--experience</em></h3>
-    </div>
-    <div class="gitlog mono" id="gitlog"></div>
-  </section>
-
-  <!-- ============ ACHIEVEMENTS (horizontal pinned) ============ -->
-  <section class="hz" id="honors">
-    <div class="pin">
-      <div class="hz-head wrap">
-        <span class="idx mono">02.2</span>
-        <h3>Honors <em class="serif">&amp; wins</em></h3>
-        <span class="mono dim hz-count"><b id="hz-i">01</b> / <span id="hz-n">05</span></span>
-      </div>
-      <div class="hz-track" id="hz-track"></div>
-    </div>
-  </section>
-
-  <!-- ============ LAB ============ -->
-  <section id="lab" class="wrap section">
-    <div class="sec-head" data-reveal data-n="03">
-      <span class="idx mono">03</span>
-      <h2><span data-scramble>The</span> <em class="serif">lab</em></h2>
-      <span class="note mono">// interactive · runs entirely in your browser</span>
-    </div>
-    <div class="lab-tabs mono" role="tablist" data-reveal>
-      <button class="on" data-tab="nn" role="tab">01 · neural net</button>
-      <button data-tab="path" role="tab">02 · pathfinding</button>
-      <button data-tab="sort" role="tab">03 · sorting</button>
-    </div>
-
-    <!-- neural net -->
-    <div class="lab frame panel on" id="tab-nn" data-reveal>
-      <div class="lab-top">
-        <div class="seg mono" id="nn-data"></div>
-        <div class="lab-ctl mono">
-          <button class="btn sm" id="nn-reset">reset</button>
-          <button class="btn sm primary" id="nn-run">train ▶</button>
-        </div>
-      </div>
-      <div class="nn-grid">
-        <div class="nn-plot"><canvas id="nn-plot"></canvas><span class="mono dim nn-hint">hover to probe the network</span></div>
-        <div class="nn-side">
-          <canvas id="nn-net"></canvas>
-          <div class="nn-stats mono">
-            <div><span class="dim">epoch</span><b id="nn-ep">0</b></div>
-            <div><span class="dim">loss</span><b id="nn-loss">-</b></div>
-            <div><span class="dim">accuracy</span><b id="nn-acc">-</b></div>
-            <div><span class="dim">arch</span><b>2·16·16·1</b></div>
-          </div>
-          <pre class="spark mono" id="nn-spark"></pre>
-          <p class="mono dim nn-cap">tanh hidden · sigmoid out · adam · backprop written by hand, no libraries</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- pathfinding -->
-    <div class="lab frame panel" id="tab-path">
-      <div class="lab-top">
-        <div class="seg mono" id="pf-algos"></div>
-        <div class="lab-ctl mono">
-          <button class="btn sm" id="pf-maze">maze</button>
-          <button class="btn sm" id="pf-clear">clear</button>
-          <button class="btn sm primary" id="pf-run">find path ▶</button>
-        </div>
-      </div>
-      <canvas id="pf" aria-label="Pathfinding grid. Drag to draw walls"></canvas>
-      <div class="lab-stats mono">
-        <span><span class="dim">algo</span> <b id="pf-name">A*</b></span>
-        <span><span class="dim">visited</span> <b id="pf-vis">0</b></span>
-        <span><span class="dim">path</span> <b id="pf-len">-</b></span>
-        <span class="legend dim">drag to draw walls · <span class="acc">S</span> start · <span class="acc">E</span> end</span>
-      </div>
-    </div>
-
-    <!-- sorting -->
-    <div class="lab frame panel" id="tab-sort">
-      <div class="lab-top">
-        <div class="seg mono" id="algos"></div>
-        <div class="lab-ctl mono">
-          <label>speed <input type="range" id="speed" min="1" max="24" value="6"></label>
-          <button class="btn sm" id="shuffle">shuffle</button>
-          <button class="btn sm primary" id="run">run ▶</button>
-        </div>
-      </div>
-      <pre class="sortview" id="sortview" aria-label="Sorting visualizer"></pre>
-      <div class="lab-stats mono">
-        <span><span class="dim">algo</span> <b id="s-name">quick sort</b></span>
-        <span><span class="dim">time</span> <b id="s-big">O(n log n)</b></span>
-        <span><span class="dim">comparisons</span> <b id="s-cmp">0</b></span>
-        <span><span class="dim">writes</span> <b id="s-swp">0</b></span>
-        <span class="legend"><i class="cm"></i>compare <i class="sw"></i>write</span>
+      <div>
+        <p class="kind">Big-data research · <span class="lav">in progress</span></p>
+        <a class="name" href="https://github.com/AnushreeKasturi/bda_endsem" target="_blank" rel="noopener">Startup Survival × News Sentiment ↗</a>
+        <p class="tagline">Does news sentiment predict startup survival better than funding data alone?</p>
+        <p class="proof">2×2 experiment on Scala, Spark and MLlib · only results from real runs</p>
       </div>
     </div>
   </section>
 
-  <!-- ============ ACTIVITY ============ -->
-  <section id="activity" class="wrap section">
-    <div class="sec-head" data-reveal data-n="04">
-      <span class="idx mono">04</span>
-      <h2><span data-scramble>Shipping</span> <em class="serif">log</em></h2>
-      <span class="note mono">// consistency &gt; intensity</span>
+  <div class="band"></div>
+  <section id="oss">
+    <h2>Open Source</h2>
+    <p class="note" id="oss-note">pull requests merged into other people's projects · counted from GitHub, Nov 2026</p>
+    <dl class="tiles">
+      <div><dt id="o-merged">49</dt><dd>PRs merged</dd></div>
+      <div><dt id="o-repos">34</dt><dd>repositories</dd></div>
+      <div><dt id="o-open">12</dt><dd>in review</dd></div>
+    </dl>
+    <ul class="prs" id="prs" aria-label="Pinned pull requests">
+      <li><a href="https://github.com/jason5ng32/MyIP/pull/516" target="_blank" rel="noopener"><span class="repo">jason5ng32/MyIP <em>★ 12.3k</em></span><span class="t">Add npm to the service-status checks</span><span class="lang">JavaScript</span></a></li>
+      <li><a href="https://github.com/lingdojo/kana-dojo/pull/32106" target="_blank" rel="noopener"><span class="repo">lingdojo/kana-dojo <em>★ 3.8k</em></span><span class="t">Add a new Japanese false friend</span><span class="lang">TypeScript</span></a></li>
+      <li><a href="https://github.com/mxsm/rocketmq-rust/pull/11433" target="_blank" rel="noopener"><span class="repo">mxsm/rocketmq-rust <em>★ 1.5k</em></span><span class="t">Rename SessionCloseOutcome to SessionCloseStatus in rocketmq-transport</span><span class="lang">Rust</span></a></li>
+      <li><a href="https://github.com/ZHangZHengEric/Sage/pull/287" target="_blank" rel="noopener"><span class="repo">ZHangZHengEric/Sage <em>★ 1.2k</em></span><span class="t">Align the test directory guide with the current CI suites</span><span class="lang">Python</span></a></li>
+    </ul>
+    <div id="prs-rest" hidden>
+      <p class="prs-h"><span id="prs-h-label">more merged PRs</span></p>
+      <ul class="prs" id="prs-live">
+        <li><a href="https://github.com/eugenioenko/ttt/pull/807" target="_blank" rel="noopener"><span class="repo">eugenioenko/ttt <em>★ 1.1k</em></span><span class="t">Add the editor.diffColorGutterNumbers setting</span><span class="lang">Go</span></a></li>
+        <li><a href="https://github.com/gdt050579/AppCUI-rs/pull/276" target="_blank" rel="noopener"><span class="repo">gdt050579/AppCUI-rs <em>★ 407</em></span><span class="t">Add a Conway's Game of Life example</span><span class="lang">Rust</span></a></li>
+        <li><a href="https://github.com/higher-kinded-j/higher-kinded-j/pull/1386" target="_blank" rel="noopener"><span class="repo">higher-kinded-j <em>★ 87</em></span><span class="t">Add foldRight, fold and foldMap to NonDetPath</span><span class="lang">Java</span></a></li>
+        <li><a href="https://github.com/c4punks/CWIST/pull/505" target="_blank" rel="noopener"><span class="repo">c4punks/CWIST</span><span class="t">Enforce the inbound HTTP/2 frame size limit</span><span class="lang">C</span></a></li>
+        <li><a href="https://github.com/Sprout-DevLabs/sprout/pull/80" target="_blank" rel="noopener"><span class="repo">Sprout-DevLabs/sprout</span><span class="t">Fix directory arguments in deps, dependents and context</span><span class="lang">Go</span></a></li>
+      </ul>
     </div>
-    <div class="gh frame" data-reveal>
-      <div class="gh-head">
-        <h3>GitHub Activity</h3>
-        <span class="gh-total" id="gh-total">loading…</span>
-      </div>
-      <div class="gh-scroll" data-lenis-prevent>
-        <div class="gh-inner">
-          <div class="gh-months" id="gh-months"></div>
-          <div class="gh-grid" id="gh-grid"></div>
-        </div>
+    <button type="button" class="show-more" id="prs-more" aria-expanded="false" aria-controls="prs-rest">show latest merges ↓</button>
+    <p class="more">
+      <span class="mute">in review:</span> <a href="https://github.com/apache/airflow/pull/74535" target="_blank" rel="noopener">apache/airflow</a> · <a href="https://github.com/Submitty/Submitty/pull/13491" target="_blank" rel="noopener">Submitty</a> ·
+      <a href="https://github.com/pulls?q=is%3Apr+author%3AAnushreeKasturi+is%3Amerged+-user%3AAnushreeKasturi" target="_blank" rel="noopener">every merged PR on GitHub →</a>
+    </p>
+  </section>
+
+  <div class="band"></div>
+  <section id="now">
+    <h2>Now</h2>
+    <p class="note" id="now-note">what's on my plate this semester</p>
+    <div class="segmented" role="tablist" aria-label="Now">
+      <span class="thumb" aria-hidden="true"></span>
+      <button role="tab" aria-selected="true" aria-controls="p-sem" data-note="what's on my plate this semester">this semester</button>
+      <button role="tab" aria-selected="false" aria-controls="p-log" data-note="dated milestones, newest first" tabindex="-1">log</button>
+    </div>
+
+    <div id="p-sem" role="tabpanel" class="groups">
+      <div><h3>Building</h3><ul>
+        <li><a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a><span class="mute">, components for React, with Manas Dasari</span></li>
+        <li><span>Startup Survival × News Sentiment</span><span class="mute">, a Scala + Spark pipeline</span></li>
+      </ul></div>
+      <div><h3>Learning</h3><ul>
+        <li><span>LLM agents</span><span class="mute">, with LangGraph</span></li>
+        <li><span>Distributed data</span><span class="mute">, Spark and Hive</span></li>
+        <li><span>Event-driven backends</span><span class="mute">, Kafka</span></li>
+      </ul></div>
+      <div><h3>Contributing</h3><ul>
+        <li><a href="#oss">Open-source fixes</a><span class="mute">, Rust, Go, Python, TypeScript</span></li>
+        <li><a href="https://github.com/apache/airflow/pull/74535" target="_blank" rel="noopener">apache/airflow</a><span class="mute">, PR in review</span></li>
+      </ul></div>
+      <div><h3>Open to</h3><ul>
+        <li><span>SWE / ML internships</span></li>
+        <li><span>Hackathon teams</span></li>
+        <li><span>Open-source collaborations</span></li>
+      </ul></div>
+    </div>
+
+    <ol id="p-log" role="tabpanel" class="log" hidden>
+      <li><time>Oct 2026</time><div><b>First open-source PRs merged</b><span>49 merged since, across 34 repositories</span></div></li>
+      <li><time>Jul 2026</time><div><b>Software Engineering Job Simulation</b><span>JPMorgan Chase &amp; Co. · Forage. Kafka, H2 persistence and a REST API controller</span></div></li>
+      <li><time>Feb 2026</time><div><b>Generative AI in Action</b><span>IBM SkillsBuild. LLMs and retrieval-augmented generation</span></div></li>
+      <li><time>2026</time><div><b>Python</b><span>Kaggle</span></div></li>
+      <li><time>Aug 2025</time><div><b>5th place, The Night Shift Startathon</b><span>ACE &amp; AMAL Club, Amrita</span></div></li>
+      <li><time>2024</time><div><b>Started B.Tech CSE</b><span>Amrita School of Engineering, Bengaluru · CGPA 9.12</span></div></li>
+      <li><time>2022</time><div><b>High School, Computer Science</b><span>The Amaatra Academy · 90.4%</span></div></li>
+    </ol>
+  </section>
+
+  <div class="band"></div>
+  <section id="stack">
+    <h2>Stack</h2>
+    <div class="stack">
+      <div><h3>languages</h3><p><span><i style="--ico:url(img/icons/python.svg)"></i>Python</span><span><i style="--ico:url(img/icons/openjdk.svg)"></i>Java</span><span><i style="--ico:url(img/icons/c.svg)"></i>C</span><span><i style="--ico:url(img/icons/javascript.svg)"></i>JavaScript</span><span><i style="--ico:url(img/icons/database.svg)"></i>SQL</span><span><i style="--ico:url(img/icons/scala.svg)"></i>Scala</span></p></div>
+      <div><h3>ai / ml</h3><p><span><i style="--ico:url(img/icons/scikitlearn.svg)"></i>scikit-learn</span><span><i style="--ico:url(img/icons/langchain.svg)"></i>LangChain</span><span><i style="--ico:url(img/icons/langgraph.svg)"></i>LangGraph</span><span><i style="--ico:url(img/icons/spark.svg)"></i>LlamaIndex</span><span><i style="--ico:url(img/icons/ollama.svg)"></i>Ollama</span><span><i style="--ico:url(img/icons/spark.svg)"></i>vLLM</span><span><i style="--ico:url(img/icons/gradio.svg)"></i>Gradio</span><span><i style="--ico:url(img/icons/streamlit.svg)"></i>Streamlit</span><span><i style="--ico:url(img/icons/weightsandbiases.svg)"></i>W&amp;B</span><span><i style="--ico:url(img/icons/jupyter.svg)"></i>Jupyter</span></p></div>
+      <div><h3>backend &amp; data</h3><p><span><i style="--ico:url(img/icons/flask.svg)"></i>Flask</span><span><i style="--ico:url(img/icons/nodedotjs.svg)"></i>Node.js</span><span><i style="--ico:url(img/icons/express.svg)"></i>Express</span><span><i style="--ico:url(img/icons/springboot.svg)"></i>Spring Boot</span><span><i style="--ico:url(img/icons/apachekafka.svg)"></i>Kafka</span><span><i style="--ico:url(img/icons/apachespark.svg)"></i>Spark</span><span><i style="--ico:url(img/icons/mysql.svg)"></i>MySQL</span><span><i style="--ico:url(img/icons/sqlite.svg)"></i>SQLite</span></p></div>
+      <div><h3>web &amp; tools</h3><p><span><i style="--ico:url(img/icons/react.svg)"></i>React</span><span><i style="--ico:url(img/icons/html5.svg)"></i>HTML</span><span><i style="--ico:url(img/icons/css.svg)"></i>CSS</span><span><i style="--ico:url(img/icons/git.svg)"></i>Git</span><span><i style="--ico:url(img/icons/postman.svg)"></i>Postman</span><span><i style="--ico:url(img/icons/render.svg)"></i>Render</span><span><i style="--ico:url(img/icons/vercel.svg)"></i>Vercel</span><span><i style="--ico:url(img/icons/claude.svg)"></i>Claude Code</span><span><i style="--ico:url(img/icons/cursor.svg)"></i>Cursor</span><span><i style="--ico:url(img/icons/modelcontextprotocol.svg)"></i>MCP</span></p></div>
+    </div>
+  </section>
+
+  <div class="band"></div>
+  <section id="activity">
+    <h2>Activity</h2>
+    <p class="note">GitHub contributions over the last six months, live</p>
+    <div class="gh">
+      <dl class="tiles" id="gh-tiles">
+        <div><dt id="s-total">–</dt><dd>contributions</dd></div>
+        <div><dt id="s-active">–</dt><dd>active days</dd></div>
+        <div><dt id="s-long">–</dt><dd>longest streak</dd></div>
+        <div><dt id="s-cur">–</dt><dd>current streak</dd></div>
+      </dl>
+      <div class="cal">
+        <div class="months" id="months"></div>
+        <div class="days" aria-hidden="true"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+        <div class="heat" id="heat" role="img" aria-label="GitHub contribution calendar"></div>
       </div>
       <div class="gh-foot">
-        <span>Less active</span>
-        <span class="gh-legend"><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More active</span></span>
-      </div>
-      <div class="gh-stats mono" id="gh-stats"></div>
-      <div class="gh-tip" id="gh-tip" role="tooltip"></div>
-    </div>
-
-    <div class="now" id="now"></div>
-  </section>
-
-  <!-- ============ CONTACT ============ -->
-  <section id="contact" class="wrap section">
-    <div class="sec-head" data-reveal data-n="05">
-      <span class="idx mono">05</span>
-      <h2><span data-scramble>Contact</span></h2>
-      <span class="note mono">// open to internships & collaborations</span>
-    </div>
-    <div class="contact-grid">
-      <div class="contact-copy" data-reveal>
-        <p class="big">Let's build something <em class="serif acc">remarkable</em>.</p>
-        <button class="email magnetic" id="email" data-label="copy">
-          <span id="email-text"></span><span class="mono copied" id="copied">copied ✓</span>
-        </button>
-        <ul class="socials mono" id="socials"></ul>
-      </div>
-      <div class="terminal frame" id="terminal" data-reveal>
-        <div class="win-bar mono"><i></i><i></i><i></i><span>guest@anushree: ~</span></div>
-        <div class="term-out mono" id="term-out" data-lenis-prevent></div>
-        <label class="term-line mono"><span class="acc">guest@anushree</span>:<span class="blue">~</span>$&nbsp;<input id="term-in" autocomplete="off" spellcheck="false" aria-label="Terminal input"></label>
+        <span id="tip">hover a day</span>
+        <span class="legend">less <i></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> more</span>
       </div>
     </div>
   </section>
+
+  <div class="band"></div>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p class="note">email is the fastest way to reach me</p>
+    <p class="status">Open to SWE / ML internships.</p>
+    <div class="mail">
+      <a href="mailto:anushree.kasturi06@gmail.com">anushree.kasturi06@gmail.com</a>
+      <button id="copy" class="chip" aria-live="polite">copy</button>
+      <a class="chip" href="resume.pdf" target="_blank" rel="noopener" data-resume hidden>résumé (PDF) ↗</a>
+    </div>
+    <p class="note" style="margin-top:32px">// elsewhere</p>
+    <ul class="socials">
+      <li><a href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="https://leetcode.com/u/AnushreeKasturi/" target="_blank" rel="noopener">LeetCode</a></li>
+      <li><a href="https://huggingface.co/Anushree24" target="_blank" rel="noopener">Hugging Face</a></li>
+      <li><a href="https://x.com/Anushree_kastur" target="_blank" rel="noopener">X</a></li>
+    </ul>
+      <!-- Forme's Beam card, kept small -->
+    <a class="forme-beam ad" href="https://forme-amber.vercel.app/components/" target="_blank" rel="noopener">
+      <span class="forme-beam-light" aria-hidden="true"></span>
+      <span class="ad-copy"><span class="mute">this page is built with</span> <b>Forme</b><span class="mute">, components for interfaces that feel alive</span></span>
+      <span class="ad-go">browse ↗</span>
+    </a>
+  </section>
+
+
+  <div class="band"></div>
+  <footer>
+    <p class="row"><span>© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></span><span class="foot-r"><button type="button" class="kbd" data-palette>⌘K</button><a href="#top">back to top ↑</a></span></p>
+  </footer>
 </main>
 
-<footer class="foot">
-  <pre id="ascii-name" aria-hidden="true"></pre>
-  <div class="foot-row wrap mono">
-    <span>© <span id="year"></span> <span id="foot-name"></span></span>
-    <span class="dim">hand-built in plain html, css &amp; js · try the konami code</span>
-    <a href="#top">back to top ↑</a>
-  </div>
-</footer>
+<dialog id="palette" class="palette" aria-label="Command palette">
+  <div class="pal-in"><span aria-hidden="true">›</span><input id="pal-in" placeholder="jump to, switch theme, copy email…" autocomplete="off" spellcheck="false" role="combobox" aria-controls="pal-list" aria-expanded="true"></div>
+  <ul id="pal-list" role="listbox"></ul>
+  <p class="pal-foot"><span>↑↓ move</span><span>↵ select</span><span>esc close</span></p>
+</dialog>
 
-<!-- back to top w/ progress ring -->
-<a href="#top" class="totop" id="totop" aria-label="Back to top">
-  <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20"/><circle cx="22" cy="22" r="20" id="totop-ring"/></svg><span>↑</span>
-</a>
-
-<!-- project overlay -->
-<div class="ov" id="ov" hidden>
-  <div class="ov-panel" id="ov-panel" data-lenis-prevent>
-    <div class="ov-bar mono">
-      <span id="ov-idx">01 / 05</span>
-      <div class="ov-nav"><button id="ov-prev" aria-label="Previous project">← prev</button><button id="ov-next" aria-label="Next project">next →</button><button id="ov-close" aria-label="Close">esc ✕</button></div>
-    </div>
-    <div class="ov-art"><pre id="ov-art"></pre></div>
-    <div class="ov-body wrap">
-      <div class="ov-main">
-        <p class="mono dim" id="ov-meta"></p>
-        <h2 id="ov-title"></h2>
-        <p class="ov-lede" id="ov-desc"></p>
-        <div class="ov-details" id="ov-details"></div>
-      </div>
-      <aside class="ov-side mono">
-        <div><span class="dim">stack</span><div class="tags" id="ov-tags"></div></div>
-        <div><span class="dim">highlights</span><ul id="ov-hl"></ul></div>
-        <div class="ov-links" id="ov-links"></div>
-      </aside>
-    </div>
-  </div>
-</div>
-
-<!-- command palette -->
-<div class="pal" id="pal" hidden>
-  <div class="pal-box frame" role="dialog" aria-label="Command palette">
-    <div class="pal-in mono"><span class="acc">›</span><input id="pal-in" placeholder="search sections, projects, actions…" autocomplete="off" spellcheck="false"></div>
-    <ul class="pal-list mono" id="pal-list" data-lenis-prevent></ul>
-    <div class="pal-foot mono dim"><span>↑↓ navigate</span><span>↵ select</span><span>esc close</span></div>
-  </div>
-</div>
-
-<canvas id="matrix" aria-hidden="true"></canvas>
-<div class="toast mono" id="toast" role="status"></div>
-
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" integrity="sha384-B2WBjDzEjJpYvhmi2UyEn7rektqkf5suS6sNoyyrf0EBAwBHdkiXxIlU0V5Ru2ed" crossorigin="anonymous"></script>
 <script src="main.js"></script>
 </body>
 </html>

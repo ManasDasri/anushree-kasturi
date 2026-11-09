@@ -2,8 +2,10 @@
 
 Static site (HTML/CSS/JS, no build step) hosted on GitHub Pages.
 
-All content lives in the `CONFIG` object at the top of `main.js`. The GitHub activity card pulls live contributions for `CONFIG.github`.
+All content is plain HTML in `index.html`; images and stack icons (Simple Icons) live in `img/`, the social preview is `og.png`. `main.js` draws a dense ASCII space scene behind the page (WebGL, real JetBrains Mono characters on a measured brightness ramp: three depths of stars drawn as . + * and the odd comet; layers parallax on scroll) and runs Forme components ported to plain JS (Dot grid header, Dock, Spotlight edge on project cards, Beam strip) plus 12 VS Code themes (tokens in `style.css`, all at 4.5:1 contrast), a ⌘K palette, the Now tabs, a live GitHub calendar and live open-source data (what is written in `index.html` is the fallback).
 
-What's inside: ASCII 3D hero, pinned manifesto + horizontal honors track (scroll-driven), project overlays, a lab (neural net trained live in the browser, pathfinding, sorting), live GitHub activity, a terminal, a ⌘K command palette, and a Konami-code easter egg. Smooth scrolling via [Lenis](https://github.com/darkroomengineering/lenis).
+Drop a `resume.pdf` next to `index.html` and the résumé buttons appear on their own.
+
+
 
 Preview locally: `python3 -m http.server` → http://localhost:8000

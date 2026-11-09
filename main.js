@@ -460,6 +460,7 @@ if (!REDUCED) {
   const ITEMS = [
     ["Go to", "Top", go("top")], ["Go to", "Selected work", go("work")], ["Go to", "Open source", go("oss")], ["Go to", "Now", go("now")],
     ["Go to", "Stack", go("stack")], ["Go to", "Activity", go("activity")], ["Go to", "Contact", go("contact")],
+    ["Open", "Résumé", () => { location.href = "resume/"; }],
     ["Action", "Copy email address", () => navigator.clipboard?.writeText("anushree.kasturi06@gmail.com")],
     ["Action", "Send an email", () => { location.href = "mailto:anushree.kasturi06@gmail.com"; }],
     ["Open", "GitHub", link("https://github.com/AnushreeKasturi")], ["Open", "LinkedIn", link("https://www.linkedin.com/in/anushree-kasturi/")],
@@ -498,7 +499,7 @@ if (!REDUCED) {
   dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
 })();
 
-/* ---- résumé links appear once resume/anushree_resume.pdf is deployed ---- */
+/* ---- résumé links appear once resume/anushree_resume.pdf is deployed, and open the
+   in-site viewer at resume/ ---- */
 // the links get their href only here, so the deploy check (every linked file exists) passes without it
-const RESUME = "resume/anushree_resume.pdf";
-fetch(RESUME, { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => { a.href = RESUME; a.hidden = false; }); }).catch(() => {});
+fetch("resume/anushree_resume.pdf", { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => { a.href = "resume/"; a.hidden = false; }); }).catch(() => {});

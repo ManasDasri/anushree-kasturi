@@ -5,7 +5,7 @@ const token = (v) => { const h = getComputedStyle(document.documentElement).getP
 /* ---- a small WebGL runner for Forme's shaders (src/registry/shader-canvas.tsx): renders
    only while on screen and the tab is visible, at most ~30fps; one still frame with
    reduced motion. ---- */
-function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer, hoverable = false, resized } = {}) {
+function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, size, pointer, hoverable = false, resized, each } = {}) {
   const gl = canvas.getContext("webgl", { alpha: false, antialias: false, powerPreference: "low-power" });
   if (!gl) return;
   const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
@@ -28,6 +28,7 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
     gl.uniform2f(U("u_mouse"), mouse[0], mouse[1]);
     gl.uniform1f(U("u_hover"), hover);
     gl.uniform1f(U("u_time"), start + ms / 1000 * speed);
+    if (each) each(set);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   };
   const resize = () => {
@@ -65,9 +66,9 @@ function shader(canvas, fragment, { ratio = 1.25, speed = 1, start = 0, tint, si
 }
 
 const SPACE = `precision mediump float;
-uniform vec2 u_resolution; uniform vec2 u_mouse; uniform float u_time; uniform float u_ratio; uniform float u_hover;
+uniform vec2 u_resolution; uniform float u_time; uniform float u_ratio; uniform float u_scroll;
 uniform vec3 u_color; uniform vec3 u_index; uniform vec3 u_bg; uniform vec3 u_text;
-uniform vec2 u_gal; uniform vec2 u_neb;
+uniform vec2 u_left; uniform vec2 u_right; uniform float u_margin;
 float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
@@ -93,50 +94,104 @@ float glyph(vec2 g, float level){
  return step(d.x,.36)*step(d.y,.36)*(1.-step(length((g-.5)*vec2(1.,.6)),.13));
 }
 
+
 void main(){
  vec2 CELL=floor(vec2(6.,10.)*u_ratio+.5);
  vec2 cell=floor(gl_FragCoord.xy/CELL);
  vec2 c=(cell+.5)*CELL;
- float t=u_time, s=u_resolution.y;
- // a spiral galaxy, tilted, its arms turning slowly
- vec2 g=rot(.55)*((c-u_gal)/s*2.1); g.y*=1.8;
+ float t=u_time, sc=u_scroll*u_ratio;
+ vec3 L=normalize(vec3(.6,.5,.62));
+ float lum=0.; vec3 col=u_text; float w=0.;
+
+ // stars: three depths that drift and slide with scroll at different speeds
+ for(int k=0;k<3;k++){
+  float fk=float(k);
+  vec2 off=vec2(t*(2.+fk*3.),sc*(.04+fk*.06))*u_ratio;
+  vec2 sc2=floor((c+off)/CELL);
+  float h=hash(sc2+fk*31.7);
+  float on=step(.986-fk*.004,h);
+  float tw=.55+.45*sin(t*(1.+fk)+h*120.);
+  float b=on*tw*(.28+fk*.22);
+  if(b>lum){lum=b; col=mix(u_text,u_index,step(.5,fract(h*13.))*.5);}
+ }
+
+ // left: a ringed planet with a moon, lit from the page's side, rising slowly as you scroll
+ float R=u_margin*.34;
+ vec2 P=u_left+vec2(0.,sc*.12);
+ float tilt=-.32;
+ vec2 q=rot(tilt)*((c-P)/R);
+ vec3 Lp=vec3(rot(tilt)*L.xy,L.z);
+ float r2=dot(q,q);
+ // the ring: a flat ellipse from 1.35R to 2.3R with a dark gap, drawn behind or in front
+ float e=length(vec2(q.x,q.y/.26));
+ float rr=(e-1.35)/(2.3-1.35);
+ float ring=0.;
+ if(rr>0.&&rr<1.) ring=smoothstep(0.,.06,rr)*smoothstep(1.,.92,rr)*(.75+.25*sin(rr*30.))*(1.-.85*step(.56,rr)*step(rr,.63));
+ bool ringFront=q.y<0.;
+ if(ring>0.&&!ringFront&&r2>1.){lum=ring*.55; col=u_index;}
+ if(r2<1.){
+  vec3 n=vec3(q,sqrt(1.-r2));
+  float diff=clamp(dot(n,Lp),0.,1.);
+  float bands=sin(q.y*7.+fbm(vec2(q.x*1.5+t*.02,q.y*4.))*1.8);
+  float rim=pow(1.-n.z,3.)*.35;
+  float b=.05+.9*pow(diff,.8)*(.88+.12*bands)+rim*diff;
+  lum=b; col=mix(u_text,u_color,.35+.2*bands);
+ }
+ if(ring>0.&&ringFront){
+  // where the ring crosses in front of the planet's lit face it reads brighter
+  float b=ring*(r2<1.?.95:.7);
+  lum=max(lum*.25,b); col=u_index;
+ }
+ // a soft halo
+ float pr=sqrt(r2);
+ if(pr>1.) lum=max(lum,exp(-(pr-1.)*5.)*.16);
+ // a moon on a slow orbit
+ vec2 M=P+vec2(cos(t*.06+1.),sin(t*.06+1.)*.3)*R*2.9;
+ vec2 mq=(c-M)/(R*.2);
+ if(dot(mq,mq)<1.){vec3 mn=vec3(mq,sqrt(1.-dot(mq,mq))); lum=.05+.85*clamp(dot(mn,L),0.,1.); col=u_text;}
+
+ // right: a spiral galaxy over a faint nebula, sliding a little slower than the page
+ vec2 G=u_right+vec2(0.,sc*.07);
+ vec2 g=rot(.55)*((c-G)/(u_margin*1.15)); g.y*=1.8;
  float r=length(g), a=atan(g.y,g.x);
- float arms=pow(.5+.5*cos(2.*a-5.5*log(r+.05)+t*.22),3.);
- float core=exp(-r*r*22.);
- float gal=exp(-r*1.5)*(.25+.95*arms)*(.5+.6*fbm(g*4.+t*.08))+core*1.4;
- // a nebula across the other margin
- vec2 n=(c-u_neb)/s*1.5;
- float neb=smoothstep(.3,.85,fbm(n*2.3+vec2(t*.025,-t*.01)))*exp(-dot(n,n)*.4)*1.25;
- // dust and stars everywhere
- float dust=smoothstep(.48,.9,fbm(c/s*3.2+vec2(0.,t*.015)))*.42+.08*step(.45,hash(cell+3.1));
- float h=hash(cell);
- float star=step(.982,h)*(.45+.55*sin(t*1.7+h*90.));
- // the pointer: a lens that wakes the glyphs
- float d=length(c-u_mouse*u_resolution)/u_ratio;
- float lens=exp(-d*d/(2.*150.*150.))*u_hover;
- float lum=max(gal+neb*.85+dust,max(star,0.)*.6);
- lum=lum*(1.+lens*1.1)+lens*.1;
- float level=floor(pow(clamp(lum,0.,1.),.72)*7.99);
+ float arms=pow(.5+.5*cos(2.*a-5.5*log(r+.05)+t*.12),3.);
+ float core=exp(-r*r*30.);
+ float gal=exp(-r*2.)*(.2+.85*arms)*(.5+.6*fbm(g*4.+t*.05))+core*1.3;
+ if(gal>lum){lum=gal; col=mix(u_color,u_text,clamp(core*1.5,0.,1.));}
+ float neb=smoothstep(.45,.9,fbm((c-G)/u_resolution.y*2.6+vec2(t*.02,0.)))*exp(-r*.6)*.35;
+ if(neb>lum){lum=neb; col=u_index;}
+
+ // a shooting star every few seconds, in one margin or the other
+ float per=6.5, k=floor(t/per), ph=fract(t/per);
+ float hk=hash(vec2(k,7.3));
+ vec2 A=vec2(mix(u_left.x,u_right.x,step(.5,hk))+(hash(vec2(k,1.1))-.5)*u_margin, u_resolution.y*(.55+.4*hash(vec2(k,2.2))));
+ vec2 dir=normalize(vec2(mix(-1.,1.,step(.5,hash(vec2(k,3.3)))),-.55));
+ float len=u_margin*1.2, head=clamp(ph/.12,0.,1.)*len;
+ vec2 rel=c-A; float along=dot(rel,dir), across=length(rel-dir*along);
+ float trail=(ph<.16)?step(across,CELL.y*.6)*smoothstep(head-len*.45,head,along)*step(along,head)*(1.-ph/.16):0.;
+ if(trail>lum){lum=trail; col=u_text;}
+
+ float level=floor(pow(clamp(lum,0.,1.),.75)*7.99);
  float gl=glyph(fract(gl_FragCoord.xy/CELL),level);
- vec3 col=mix(u_index,u_color,clamp(gal*1.6+lens*.6,0.,1.));
- col=mix(col,u_text,clamp(core*1.4+max(star,0.)*(1.-gal),0.,1.));
- float alpha=gl*clamp(.3+lum*.9,0.,1.);
+ float alpha=gl*clamp(.25+lum,0.,1.);
  gl_FragColor=vec4(mix(u_bg,col,alpha),1.);
 }`;
 
-/* ---- behind the page: dense ASCII space. A spiral galaxy in the left margin, a nebula in
-   the right, dust and twinkling stars, drawn as glyphs in the shader (the glyphs are from
-   Forme's Planet shader). The pointer is a lens that wakes the glyphs around it. ---- */
+/* ---- behind the page: an ASCII night sky, drawn as glyphs in a shader (glyph set from
+   Forme's Planet shader). A ringed planet with a moon in the left margin, a spiral galaxy
+   over a nebula in the right, three depths of stars, a shooting star every few seconds.
+   Scrolling slides each layer at its own speed. ---- */
 shader($("#contours"), SPACE, {
-  ratio: 1.5, speed: 0.6, start: 40, pointer: window, hoverable: true,
+  ratio: 1.5, speed: 1, start: 40,
   size: () => [innerWidth, innerHeight],
   tint: (set) => { set("u_color", token("--sig")); set("u_index", token("--lav")); set("u_bg", token("--ink")); set("u_text", token("--text")); },
-  // centre the galaxy and the nebula in the margins either side of the column
   resized: (set, r) => {
-    const col = $("main.col").getBoundingClientRect();
-    set("u_gal", [Math.max(col.left / 2, 120) * r, innerHeight * 0.6 * r]);
-    set("u_neb", [Math.min((col.right + innerWidth) / 2, innerWidth - 120) * r, innerHeight * 0.38 * r]);
+    const col = $("main.col").getBoundingClientRect(), m = Math.max(col.left, innerWidth - col.right, 160);
+    set("u_margin", m * r);
+    set("u_left", [Math.max(col.left / 2, 90) * r, innerHeight * 0.42 * r]);
+    set("u_right", [Math.min((col.right + innerWidth) / 2, innerWidth - 90) * r, innerHeight * 0.62 * r]);
   },
+  each: (set) => set("u_scroll", scrollY),
 });
 
 /* ---- the header: Forme's Dot grid (src/registry/dot-grid.tsx), a dot matrix with a slow

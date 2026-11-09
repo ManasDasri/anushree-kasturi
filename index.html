@@ -11,12 +11,14 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23060908'/><text x='50' y='66' font-family='sans-serif' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:wght@400;500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <a href="#main" class="skip">Skip to content</a>
+<!-- temporary: compare fonts -->
+<div class="pick-font"><span>font</span><button data-f="bricolage">Bricolage</button><button data-f="geist">Geist</button><button data-f="instrument">Instrument</button><button data-f="sora">Sora</button></div>
 
 <!-- Forme's Contours shader, behind everything: shows in the margins and through the banner -->
 <canvas id="contours" class="contours" aria-hidden="true"></canvas>
@@ -84,7 +86,7 @@
     <h2>Selected Work</h2>
     <ul class="cards">
       <li class="wide"><a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">
-        <span class="shot"><img src="img/forme.jpg" alt="" loading="lazy"></span>
+        <span class="shot"><span class="open">open ↗</span><img src="img/forme.jpg" alt="" loading="lazy"></span>
         <span class="kind">Component library · building with <span class="lav">Manas Dasari</span></span>
         <span class="name">Forme <i>→</i></span>
         <span class="tagline">Components for interfaces that feel alive: shaders, ASCII, navigation, inputs and feedback for React. The dock and the contour lines on this page are Forme components.</span>
@@ -92,7 +94,7 @@
       </a><span class="links"><a href="https://github.com/ManasDasri/forme" target="_blank" rel="noopener">code ↗</a></span></li>
 
       <li><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">
-        <span class="shot"><img src="img/intruder.jpg" alt="" loading="lazy"></span>
+        <span class="shot"><span class="open">open ↗</span><img src="img/intruder.jpg" alt="" loading="lazy"></span>
         <span class="kind">Security · intrusion detection</span>
         <span class="name">Find the Intruder <i>→</i></span>
         <span class="tagline">Can you find an attacker hidden in a thousand lines of normal logs?</span>
@@ -100,7 +102,7 @@
       </a><span class="links"><a href="https://github.com/AnushreeKasturi/algothon" target="_blank" rel="noopener">code ↗</a></span></li>
 
       <li><a href="https://potholerisk.onrender.com" target="_blank" rel="noopener">
-        <span class="shot"><img src="img/potholerisk.jpg" alt="" loading="lazy"></span>
+        <span class="shot"><span class="open">open ↗</span><img src="img/potholerisk.jpg" alt="" loading="lazy"></span>
         <span class="kind">Full-stack · Bengaluru</span>
         <span class="name">PotholeRisk <i>→</i></span>
         <span class="tagline">How risky is a Bengaluru road right now, given the weather, traffic and potholes?</span>
@@ -108,7 +110,7 @@
       </a><span class="links"><a href="https://github.com/AnushreeKasturi/Potholerisk" target="_blank" rel="noopener">code ↗</a></span></li>
 
       <li><a href="https://student-performance-predictor-1mlt.onrender.com" target="_blank" rel="noopener">
-        <span class="shot"><img src="img/predictor.jpg" alt="" loading="lazy"></span>
+        <span class="shot"><span class="open">open ↗</span><img src="img/predictor.jpg" alt="" loading="lazy"></span>
         <span class="kind">Deployed ML app</span>
         <span class="name">Student Performance Predictor <i>→</i></span>
         <span class="tagline">Predicts final scores from attendance, study hours, internals and assignments.</span>
@@ -116,7 +118,7 @@
       </a><span class="links"><a href="https://github.com/AnushreeKasturi/student-performance-predictor" target="_blank" rel="noopener">code ↗</a></span></li>
 
       <li><a href="https://virtual-museum-explorer.onrender.com" target="_blank" rel="noopener">
-        <span class="shot"><img src="img/heritage.jpg" alt="" loading="lazy"></span>
+        <span class="shot"><span class="open">open ↗</span><img src="img/heritage.jpg" alt="" loading="lazy"></span>
         <span class="kind">Web · virtual museum</span>
         <span class="name">Heritage Explorer <i>→</i></span>
         <span class="tagline">Five of India's best-known museums, with galleries and ticket booking, in one place.</span>
@@ -160,6 +162,7 @@
       <li><a href="https://github.com/c4punks/CWIST/pull/505" target="_blank" rel="noopener"><span class="repo">c4punks/CWIST</span><span class="t">Enforce the inbound HTTP/2 frame size limit</span><span class="lang">C</span></a></li>
       <li><a href="https://github.com/Sprout-DevLabs/sprout/pull/80" target="_blank" rel="noopener"><span class="repo">Sprout-DevLabs/sprout</span><span class="t">Fix directory arguments in deps, dependents and context</span><span class="lang">Go</span></a></li>
     </ul>
+    <button type="button" class="show-more" id="prs-more" aria-expanded="false" aria-controls="prs">show more ↓</button>
     <p class="more">
       <span class="mute">in review:</span> <a href="https://github.com/apache/airflow/pull/74535" target="_blank" rel="noopener">apache/airflow</a> · <a href="https://github.com/Submitty/Submitty/pull/13491" target="_blank" rel="noopener">Submitty</a> ·
       <a href="https://github.com/pulls?q=is%3Apr+author%3AAnushreeKasturi+is%3Amerged+-user%3AAnushreeKasturi" target="_blank" rel="noopener">every merged PR on GitHub →</a>
@@ -262,8 +265,25 @@
   </section>
 
   <div class="band"></div>
+  <section id="forme" aria-label="Forme">
+    <!-- Forme's Beam card -->
+    <div class="forme-beam ad">
+      <span class="forme-beam-light" aria-hidden="true"></span>
+      <p class="kind">this page is built with</p>
+      <p class="ad-title">Forme<span class="sig">.</span></p>
+      <p class="ad-copy">Components for interfaces that feel alive: shaders, ASCII, navigation, inputs and feedback for React. Free, and the source is yours to keep.</p>
+      <p class="ad-used"><span>Dock</span><span>Dot grid</span><span>Contours</span><span>Beam card</span><span>Spotlight card</span><span class="mute">+ 48 more</span></p>
+      <div class="cta">
+        <a class="btn primary" href="https://forme-amber.vercel.app/components/" target="_blank" rel="noopener">Browse components ↗</a>
+        <a class="btn" href="https://forme-amber.vercel.app/docs/" target="_blank" rel="noopener">Read the docs</a>
+        <a class="btn" href="https://github.com/ManasDasri/forme" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="band"></div>
   <footer>
-    <p>The dock and the contour lines are from <a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a>.</p>
+    <p>Built with <a href="https://forme-amber.vercel.app" target="_blank" rel="noopener">Forme</a>, the component library I'm building with Manas Dasari.</p>
     <p class="row"><span>© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></span><a href="#top">back to top ↑</a></p>
   </footer>
 </main>

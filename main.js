@@ -306,3 +306,38 @@ fetch("https://github-contributions-api.jogruber.de/v4/AnushreeKasturi?y=last")
     }));
   } catch {}
 })();
+
+/* ---- temporary: compare font pairings ---- */
+(function fonts() {
+  let f = "bricolage";
+  try { f = localStorage.getItem("font") || f; } catch {}
+  const set = (v) => { if (v === "bricolage") delete document.documentElement.dataset.font; else document.documentElement.dataset.font = v;
+    document.querySelectorAll(".pick-font button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.f === v)); try { localStorage.setItem("font", v); } catch {} };
+  document.querySelectorAll(".pick-font button").forEach((b) => b.addEventListener("click", () => set(b.dataset.f)));
+  set(f);
+})();
+
+/* ---- project cards: the screenshot tilts toward the pointer, with a glare and Forme's
+   spotlight edge following it ---- */
+if (!REDUCED) document.querySelectorAll(".cards > li > a").forEach((a) => {
+  const shot = a.querySelector(".shot");
+  a.addEventListener("pointermove", (e) => {
+    const r = shot.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    shot.classList.add("live");
+    shot.style.setProperty("--x", `${x * 100}%`); shot.style.setProperty("--y", `${y * 100}%`);
+    shot.style.setProperty("--rx", `${(0.5 - y) * 9}deg`); shot.style.setProperty("--ry", `${(x - 0.5) * 11}deg`);
+  });
+  a.addEventListener("pointerleave", () => { shot.classList.remove("live"); shot.style.setProperty("--rx", "0deg"); shot.style.setProperty("--ry", "0deg"); });
+});
+
+/* ---- open source: four rows, the rest behind a button ---- */
+const prsMore = $("#prs-more");
+const syncMore = () => {
+  const n = $("#prs").children.length - 4, open = $("#prs").classList.contains("open");
+  prsMore.hidden = n <= 0;
+  prsMore.textContent = open ? "show less ↑" : `show ${n} more ↓`;
+  prsMore.setAttribute("aria-expanded", open);
+};
+prsMore.addEventListener("click", () => { $("#prs").classList.toggle("open"); syncMore(); });
+syncMore();
+new MutationObserver(syncMore).observe($("#prs"), { childList: true });

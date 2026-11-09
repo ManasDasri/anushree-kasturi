@@ -2,7 +2,7 @@
 
 Static site (HTML/CSS/JS, no build step) hosted on GitHub Pages.
 
-All content is plain HTML in `index.html`; project screenshots live in `img/`. `main.js` runs Forme's Contours shader (background) and Dock, ported to plain JS, plus the whoami typewriter, Now tabs and the live GitHub calendar. Open-source numbers and the PR list load live from the GitHub search API; what is written in `index.html` is the fallback.
+All content is plain HTML in `index.html`; images and stack icons (Simple Icons) live in `img/`. `main.js` runs three Forme components ported to plain JS: the Planet shader (header), Contours (background) and Dock, plus 12 VS Code themes (tokens in `style.css`), the Now tabs, the live GitHub calendar and live open-source data (what is written in `index.html` is the fallback).
 
 
 

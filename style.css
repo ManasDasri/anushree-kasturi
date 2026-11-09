@@ -1,17 +1,65 @@
-:root {
+:root, [data-theme="sage"] {
   --ink: #060908; --paper: #0c1210; --raised: #131d19; --line: #1d2a25;
-  --text: #e8ece4; --mute: #8f9d96;
-  --sig: #b9dfa5; --lav: #a9a4e8; --on-sig: #060908;
-  --l1: #26452f; --l2: #437a4a; --l3: #7fb46c; --l4: #b9dfa5;
+  --text: #e8ece4; --mute: #8f9d96; --sig: #b9dfa5; --lav: #a9a4e8; --on-sig: #060908;
+  color-scheme: dark;
+  --l1: color-mix(in srgb, var(--sig) 28%, var(--raised)); --l2: color-mix(in srgb, var(--sig) 52%, var(--raised));
+  --l3: color-mix(in srgb, var(--sig) 76%, var(--raised)); --l4: var(--sig);
   --head: "Bricolage Grotesque", system-ui, sans-serif;
   --mono: "DM Mono", ui-monospace, monospace;
+}
+[data-theme="dark-plus"] {
+  --ink: #1e1e1e; --paper: #252526; --raised: #2d2d30; --line: #3c3c3c;
+  --text: #d4d4d4; --mute: #9d9d9d; --sig: #569cd6; --lav: #c586c0; --on-sig: #1e1e1e;
   color-scheme: dark;
 }
-:root[data-theme="light"] {
-  --ink: #f3f4ee; --paper: #fbfbf8; --raised: #e9ebe3; --line: #d6dbd0;
-  --text: #151a16; --mute: #5d6a62;
-  --sig: #3d7a32; --lav: #5a52c4; --on-sig: #ffffff;
-  --l1: #cfe5c3; --l2: #9cc98a; --l3: #65a356; --l4: #3d7a32;
+[data-theme="one-dark"] {
+  --ink: #282c34; --paper: #21252b; --raised: #2c313a; --line: #3e4451;
+  --text: #abb2bf; --mute: #7f848e; --sig: #98c379; --lav: #c678dd; --on-sig: #282c34;
+  color-scheme: dark;
+}
+[data-theme="dracula"] {
+  --ink: #282a36; --paper: #21222c; --raised: #343746; --line: #44475a;
+  --text: #f8f8f2; --mute: #9ea8cf; --sig: #50fa7b; --lav: #bd93f9; --on-sig: #282a36;
+  color-scheme: dark;
+}
+[data-theme="monokai"] {
+  --ink: #272822; --paper: #1e1f1c; --raised: #3e3d32; --line: #49483e;
+  --text: #f8f8f2; --mute: #a59f85; --sig: #a6e22e; --lav: #f92672; --on-sig: #272822;
+  color-scheme: dark;
+}
+[data-theme="github-dark"] {
+  --ink: #0d1117; --paper: #161b22; --raised: #21262d; --line: #30363d;
+  --text: #e6edf3; --mute: #8d96a0; --sig: #3fb950; --lav: #d2a8ff; --on-sig: #0d1117;
+  color-scheme: dark;
+}
+[data-theme="tokyo-night"] {
+  --ink: #1a1b26; --paper: #16161e; --raised: #24283b; --line: #292e42;
+  --text: #c0caf5; --mute: #8089b3; --sig: #7aa2f7; --lav: #bb9af7; --on-sig: #1a1b26;
+  color-scheme: dark;
+}
+[data-theme="catppuccin"] {
+  --ink: #1e1e2e; --paper: #181825; --raised: #313244; --line: #45475a;
+  --text: #cdd6f4; --mute: #a6adc8; --sig: #a6e3a1; --lav: #cba6f7; --on-sig: #1e1e2e;
+  color-scheme: dark;
+}
+[data-theme="nord"] {
+  --ink: #2e3440; --paper: #3b4252; --raised: #434c5e; --line: #4c566a;
+  --text: #eceff4; --mute: #a3abbd; --sig: #88c0d0; --lav: #b48ead; --on-sig: #2e3440;
+  color-scheme: dark;
+}
+[data-theme="light-plus"] {
+  --ink: #ffffff; --paper: #f3f3f3; --raised: #e8e8e8; --line: #e0e0e0;
+  --text: #1f1f1f; --mute: #616161; --sig: #0070c1; --lav: #af00db; --on-sig: #ffffff;
+  color-scheme: light;
+}
+[data-theme="github-light"] {
+  --ink: #ffffff; --paper: #f6f8fa; --raised: #eaeef2; --line: #d0d7de;
+  --text: #1f2328; --mute: #59636e; --sig: #1a7f37; --lav: #8250df; --on-sig: #ffffff;
+  color-scheme: light;
+}
+[data-theme="solarized-light"] {
+  --ink: #fdf6e3; --paper: #eee8d5; --raised: #e6dfc8; --line: #ddd6c1;
+  --text: #073642; --mute: #657b83; --sig: #268bd2; --lav: #6c71c4; --on-sig: #fdf6e3;
   color-scheme: light;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,9 +92,11 @@ ul, ol { list-style: none; }
           mask-image: linear-gradient(90deg, transparent, #000 calc(50% - 21rem), #000 calc(50% + 21rem), transparent); }
 
 /* banner: a window onto the contours, the name over its foot */
-.banner { height: clamp(240px, 38svh, 360px); background: transparent; }
-.banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 35%, var(--ink) 97%); }
-.banner h1 { position: absolute; z-index: 1; left: 0; bottom: 0; padding: 0 36px 22px; font-size: clamp(2.4rem, 9vw, 4.4rem); font-weight: 700; letter-spacing: -.04em; line-height: .9; white-space: nowrap; }
+.banner { height: clamp(340px, 58svh, 500px); overflow: hidden; background: #000; }
+.banner canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.banner h1 { position: absolute; z-index: 1; left: 0; bottom: 0; padding: 0 36px 44px; font-size: clamp(2.4rem, 9vw, 4.4rem); font-weight: 700; letter-spacing: -.04em; line-height: .9; white-space: nowrap; color: #f3f4ee; text-shadow: 0 2px 24px #000c; }
+@media (max-width: 640px) { .banner h1 { padding-inline: 22px; } }
+.banner::after { content: ""; position: absolute; inset: auto 0 0; height: 10%; background: linear-gradient(transparent, var(--ink)); pointer-events: none; }
 
 section, footer { padding: 64px 36px; }
 h2 { font-size: 2.4rem; font-weight: 700; letter-spacing: -.035em; line-height: 1; margin-bottom: 32px; }
@@ -151,7 +201,9 @@ h3 { font: 500 12px var(--mono); color: var(--sig); margin-bottom: 12px; }
 .stack > div:last-child { border: 0; }
 .stack h3 { color: var(--mute); padding-top: 8px; margin: 0; }
 .stack p { display: flex; flex-wrap: wrap; gap: 8px; }
-.stack span { font: 12px var(--mono); border: 1px solid var(--line); background: var(--paper); border-radius: 7px; padding: 6px 12px; transition: border-color .2s, color .2s, translate .2s; }
+.stack span { display: inline-flex; align-items: center; gap: 7px; font: 12px var(--mono); border: 1px solid var(--line); background: var(--paper); border-radius: 7px; padding: 6px 12px; transition: border-color .2s, color .2s, translate .2s; }
+.stack i { width: 14px; height: 14px; flex: none; background: var(--mute); -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat; transition: background .2s; }
+.stack span:hover i { background: var(--sig); }
 .stack span:hover { border-color: var(--sig); color: var(--sig); translate: 0 -2px; }
 
 /* GitHub calendar card */
@@ -207,13 +259,22 @@ footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; ga
 .forme-dock li[data-active] { color: var(--sig); }
 .forme-dock li[data-active]::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; transform: translateX(-50%); }
 .forme-dock li.sep { width: 1px !important; height: 28px !important; align-self: center; background: var(--line); }
-.moon { display: none; } [data-theme="light"] .moon { display: block; } [data-theme="light"] .sun { display: none; }
+.theme-menu { position: absolute; z-index: 50; right: -6px; bottom: calc(100% + 14px); width: 230px; max-height: min(420px, 70svh); overflow-y: auto; padding: 6px;
+  border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 24px 60px -20px #000a; }
+.theme-menu p { font: 11px var(--mono); color: var(--mute); padding: 6px 8px 8px; }
+.theme-menu button { display: flex !important; align-items: center; gap: 10px; width: 100%; height: auto !important; padding: 7px 8px; border-radius: 8px; background: none !important; box-shadow: none !important;
+  color: var(--text); font: 13px var(--head); text-align: left; cursor: pointer; }
+.theme-menu button:hover, .theme-menu button[aria-checked="true"] { background: var(--raised) !important; }
+.theme-menu button[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--sig); }
+.sw { width: 26px; height: 18px; flex: none; border-radius: 5px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--line); display: flex; align-items: center; justify-content: center; gap: 3px; }
+.sw::before, .sw::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--sig); }
+.sw::after { background: var(--lav); }
+.forme-dock li:has(.theme-menu:not([hidden])) .forme-dock-label { opacity: 0 !important; }
 .forme-dock button:focus-visible, .forme-dock a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
 @media (max-width: 640px) {
   section, footer { padding-inline: 22px; }
   footer { padding-bottom: 120px; }
-  .banner h1 { padding-inline: 22px; }
   .cards, .also, .groups { grid-template-columns: 1fr; }
   .wide .shot { aspect-ratio: 16 / 10; }
   .stack > div { grid-template-columns: 1fr; gap: 10px; }

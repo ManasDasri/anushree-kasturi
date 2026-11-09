@@ -14,7 +14,7 @@
 }
 [data-theme="one-dark"] {
   --ink: #282c34; --paper: #21252b; --raised: #2c313a; --line: #3e4451;
-  --text: #abb2bf; --mute: #7f848e; --sig: #98c379; --lav: #c678dd; --on-sig: #282c34;
+  --text: #abb2bf; --mute: #94999c; --sig: #98c379; --lav: #c87cde; --on-sig: #282c34;
   color-scheme: dark;
 }
 [data-theme="dracula"] {
@@ -24,7 +24,7 @@
 }
 [data-theme="monokai"] {
   --ink: #272822; --paper: #1e1f1c; --raised: #3e3d32; --line: #49483e;
-  --text: #f8f8f2; --mute: #a59f85; --sig: #a6e22e; --lav: #f92672; --on-sig: #272822;
+  --text: #f8f8f2; --mute: #ada791; --sig: #a6e22e; --lav: #f980a8; --on-sig: #272822;
   color-scheme: dark;
 }
 [data-theme="github-dark"] {
@@ -34,7 +34,7 @@
 }
 [data-theme="tokyo-night"] {
   --ink: #1a1b26; --paper: #16161e; --raised: #24283b; --line: #292e42;
-  --text: #c0caf5; --mute: #8089b3; --sig: #7aa2f7; --lav: #bb9af7; --on-sig: #1a1b26;
+  --text: #c0caf5; --mute: #868fb7; --sig: #7aa2f7; --lav: #bb9af7; --on-sig: #1a1b26;
   color-scheme: dark;
 }
 [data-theme="catppuccin"] {
@@ -44,22 +44,22 @@
 }
 [data-theme="nord"] {
   --ink: #2e3440; --paper: #3b4252; --raised: #434c5e; --line: #4c566a;
-  --text: #eceff4; --mute: #a3abbd; --sig: #88c0d0; --lav: #b48ead; --on-sig: #2e3440;
+  --text: #eceff4; --mute: #b5bdc9; --sig: #90c4d2; --lav: #ceb5c7; --on-sig: #2e3440;
   color-scheme: dark;
 }
 [data-theme="light-plus"] {
   --ink: #ffffff; --paper: #f3f3f3; --raised: #e8e8e8; --line: #e0e0e0;
-  --text: #1f1f1f; --mute: #616161; --sig: #0070c1; --lav: #af00db; --on-sig: #ffffff;
+  --text: #1f1f1f; --mute: #616161; --sig: #006ab7; --lav: #ab00d6; --on-sig: #ffffff;
   color-scheme: light;
 }
 [data-theme="github-light"] {
   --ink: #ffffff; --paper: #f6f8fa; --raised: #eaeef2; --line: #d0d7de;
-  --text: #1f2328; --mute: #59636e; --sig: #1a7f37; --lav: #8250df; --on-sig: #ffffff;
+  --text: #1f2328; --mute: #59636e; --sig: #197b35; --lav: #7f4cde; --on-sig: #ffffff;
   color-scheme: light;
 }
 [data-theme="solarized-light"] {
   --ink: #fdf6e3; --paper: #eee8d5; --raised: #e6dfc8; --line: #ddd6c1;
-  --text: #073642; --mute: #657b83; --sig: #268bd2; --lav: #6c71c4; --on-sig: #fdf6e3;
+  --text: #073642; --mute: #55636b; --sig: #19649e; --lav: #5055bd; --on-sig: #fdf6e3;
   color-scheme: light;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }

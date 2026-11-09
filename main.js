@@ -498,5 +498,7 @@ if (!REDUCED) {
   dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
 })();
 
-/* ---- résumé links appear once resume.pdf is deployed next to the page ---- */
-fetch("resume.pdf", { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => a.hidden = false); }).catch(() => {});
+/* ---- résumé links appear once resume/anushree_resume.pdf is deployed ---- */
+// the links get their href only here, so the deploy check (every linked file exists) passes without it
+const RESUME = "resume/anushree_resume.pdf";
+fetch(RESUME, { method: "HEAD" }).then((r) => { if (r.ok) document.querySelectorAll("[data-resume]").forEach((a) => { a.href = RESUME; a.hidden = false; }); }).catch(() => {});

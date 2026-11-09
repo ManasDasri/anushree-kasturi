@@ -3,175 +3,208 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anushree Kasturi</title>
-<meta name="description" content="Anushree Kasturi, computer science student at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems.">
-<meta name="theme-color" content="#0c0d0c">
+<title>Anushree Kasturi · AI/ML and full-stack</title>
+<meta name="description" content="Anushree Kasturi, CS undergrad at Amrita Bengaluru, building across AI/ML, full-stack development and intelligent systems.">
+<meta name="theme-color" content="#070b0a">
 <meta property="og:title" content="Anushree Kasturi">
-<meta property="og:description" content="CS student building across AI/ML, full-stack and intelligent systems.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230c0d0c'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
+<meta property="og:description" content="CS undergrad building across AI/ML, full-stack and intelligent systems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23070b0a'/><text x='50' y='66' font-family='monospace' font-size='46' font-weight='700' text-anchor='middle' fill='%23b9dfa5'>ak</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a href="#main" class="skip">Skip to content</a>
 
-<header class="nav wrap">
-  <a href="#top" class="logo">ak<span class="acc">.</span></a>
-  <nav>
-    <a href="#work">work</a>
-    <a href="#experience">experience</a>
-    <a href="#contact">contact</a>
-  </nav>
+<!-- the margins: a still, dithered night scene behind the column -->
+<canvas id="margin" class="margin" aria-hidden="true"></canvas>
+
+<nav class="dock" aria-label="Sections">
+  <a href="#top" data-for="top" aria-label="Top"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Top</span></a>
+  <a href="#work" data-for="work" aria-label="Work"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Work</span></a>
+  <a href="#now" data-for="now" aria-label="Now"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Now</span></a>
+  <a href="#stack" data-for="stack" aria-label="Stack"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span>Stack</span></a>
+  <a href="#activity" data-for="activity" aria-label="Activity"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Activity</span></a>
+  <a href="#contact" data-for="contact" aria-label="Contact"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Contact</span></a>
+</nav>
+
+<div class="col"><div class="band thin"></div></div>
+
+<header id="top" class="banner col">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <h1>Anushree Kasturi</h1>
 </header>
 
-<main id="top" class="wrap">
+<main id="main" class="col">
 
   <section class="hero">
-    <img class="avatar" src="https://avatars.githubusercontent.com/u/219416439?s=240&v=4" alt="Anushree Kasturi" width="72" height="72">
-    <h1>Anushree<br><span class="outline">Kasturi</span><span class="acc">.</span></h1>
-    <p class="lede">CS student building things, breaking things, and learning along the way, across <b>AI/ML</b>, <b>full-stack development</b> and <b>intelligent systems</b>.</p>
-    <ul class="meta">
-      <li><span class="dot"></span>open to internships</li>
-      <li>B.Tech CSE @ Amrita '28</li>
-      <li>Bengaluru · <span id="clock">IST</span></li>
+    <div class="who">
+      <img src="https://avatars.githubusercontent.com/u/219416439?s=112&v=4" alt="" width="56" height="56">
+      <div>
+        <p class="whoami"><span class="mute">$ whoami</span> <span id="role">CS student</span><span class="caret" aria-hidden="true"></span></p>
+        <p class="sub">3rd year CSE, Amrita School of Engineering, Bengaluru · class of 2028</p>
+        <a class="pill" href="mailto:anushree.kasturi06@gmail.com"><span class="ping"></span>open to SWE / ML internships</a>
+      </div>
+    </div>
+
+    <p class="intro">
+      I turn real-world problems into working software across AI/ML, full-stack and intelligent systems.
+      Lately that's <a href="#work">Find the Intruder</a>, a log-forensics engine that rebuilds an attacker's kill chain,
+      <a href="#work">PotholeRisk</a>, a Bayesian road-risk engine for Bengaluru, and
+      <a href="#work">AI-SDN Traffic</a>, an ML-guided network controller.
+    </p>
+
+    <div class="cta">
+      <a class="btn primary" href="mailto:anushree.kasturi06@gmail.com">Send an email →</a>
+      <a class="btn" href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+
+    <ul class="highlights" aria-label="Highlights">
+      <li><span class="sig">▸ </span><b>9.12 CGPA</b> B.Tech CSE</li>
+      <li><span class="sig">▸ </span><b>5th place</b> Night Shift Startathon '25</li>
+      <li><span class="sig">▸ </span><b>4 apps</b> deployed live</li>
     </ul>
   </section>
 
-  <section class="row" id="about">
-    <h2 class="label"><i>01</i>about</h2>
-    <div>
-      <p class="prose">Third-year Computer Science undergrad at <b>Amrita School of Engineering, Bengaluru</b>. I turn ideas and real-world problems into working applications, from a Bayesian road-risk engine for Bengaluru to an ML-driven network controller. Outside of shipping projects you'll find me at hackathons, technical quizzes and coding challenges.</p>
-      <dl class="stats">
-        <div><dt>9.12</dt><dd>CGPA · B.Tech CSE</dd></div>
-        <div><dt>6</dt><dd>projects built</dd></div>
-        <div><dt>4</dt><dd>live deployments</dd></div>
-        <div><dt>5th</dt><dd>Night Shift Startathon '25</dd></div>
-      </dl>
-      <dl class="skills">
-        <div><dt>Languages</dt><dd>Python, Java, C, JavaScript, SQL, Scala</dd></div>
-        <div><dt>AI / ML</dt><dd>scikit-learn, LangChain, LangGraph, LlamaIndex, Ollama, vLLM, Gradio, Streamlit, W&amp;B</dd></div>
-        <div><dt>Backend &amp; data</dt><dd>Flask, Node.js, Express, Spring Boot, Kafka, Spark, MySQL, SQLite</dd></div>
-        <div><dt>Frontend &amp; tools</dt><dd>React, HTML, CSS, Git, Postman, Render, Vercel, Claude Code, Cursor, MCP</dd></div>
-      </dl>
+  <div class="band"></div>
+  <section id="work">
+    <h2>Selected Work</h2>
+    <ul class="cards">
+      <li><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">
+        <span class="shot"><img src="img/intruder.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Security · intrusion detection</span>
+        <span class="name">Find the Intruder <i>→</i></span>
+        <span class="tagline">Can you find an attacker hidden in a thousand lines of normal logs?</span>
+        <span class="proof">23 tests in CI · zero dependencies · benign decoy never flagged</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/algothon" target="_blank" rel="noopener">code ↗</a></span></li>
+
+      <li><a href="https://potholerisk.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><img src="img/potholerisk.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Full-stack · Bengaluru</span>
+        <span class="name">PotholeRisk <i>→</i></span>
+        <span class="tagline">How risky is a Bengaluru road right now, given the weather, traffic and potholes?</span>
+        <span class="proof">Bayesian risk model · API keys kept server-side · on Render</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/Potholerisk" target="_blank" rel="noopener">code ↗</a></span></li>
+
+      <li><a href="https://student-performance-predictor-1mlt.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><img src="img/predictor.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Deployed ML app</span>
+        <span class="name">Student Performance Predictor <i>→</i></span>
+        <span class="tagline">Predicts final scores from attendance, study hours, internals and assignments.</span>
+        <span class="proof">model → app → deploy · hashed-password auth · Plotly dashboards</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/student-performance-predictor" target="_blank" rel="noopener">code ↗</a></span></li>
+
+      <li><a href="https://virtual-museum-explorer.onrender.com" target="_blank" rel="noopener">
+        <span class="shot"><img src="img/heritage.jpg" alt="" loading="lazy"></span>
+        <span class="kind">Web · virtual museum</span>
+        <span class="name">Heritage Explorer <i>→</i></span>
+        <span class="tagline">Five of India's best-known museums, with galleries and ticket booking, in one place.</span>
+        <span class="proof">5 museums, themed per museum · responsive · dark mode</span>
+      </a><span class="links"><a href="https://github.com/AnushreeKasturi/virtual-museum-explorer" target="_blank" rel="noopener">code ↗</a></span></li>
+    </ul>
+
+    <div class="also">
+      <div>
+        <p class="kind">ML · networking</p>
+        <a class="name" href="https://github.com/AnushreeKasturi/AI-SDN-Traffic-Management" target="_blank" rel="noopener">AI-SDN Traffic ↗</a>
+        <p class="tagline">Does an ML-guided controller beat static routing on the same network and traffic?</p>
+        <p class="proof">~99.7% flow classification · ~15% lower latency · ~39% lower peak load · 23 → 0 congested flows</p>
+      </div>
+      <div>
+        <p class="kind">Big-data research · <span class="lav">in progress</span></p>
+        <a class="name" href="https://github.com/AnushreeKasturi/bda_endsem" target="_blank" rel="noopener">Startup Survival × News Sentiment ↗</a>
+        <p class="tagline">Does news sentiment predict startup survival better than funding data alone?</p>
+        <p class="proof">2×2 experiment on Scala, Spark and MLlib · only results from real runs</p>
+      </div>
     </div>
   </section>
 
-  <section class="row" id="work">
-    <h2 class="label"><i>02</i>work</h2>
-    <div class="projects">
-
-      <details>
-        <summary><i>01</i><b>Find the Intruder</b><span class="kind">Intrusion detection</span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>A log-forensics engine that buries attackers in ~1,000 lines of normal traffic, then finds them, correlates their events into one incident and rebuilds the kill chain with log-line evidence, MITRE ATT&amp;CK mapping and recommended response actions.</p>
-          <p>Catches reconnaissance, brute force, credential stuffing, success-after-failure pivots, impossible travel, privilege escalation and exfiltration. A zero-dependency Python package + CLI is the engine; a single-file web console runs the same logic in the browser.</p>
-          <ul class="hl"><li>23 tests in CI on Python 3.9 &amp; 3.12</li><li>Zero dependencies, pure stdlib</li><li>Benign decoy never flagged</li></ul>
-          <p class="tags">Python · JavaScript · GitHub Actions · MITRE ATT&amp;CK</p>
-          <p class="links"><a href="https://anushreekasturi.github.io/algothon/" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/algothon" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
-      <details>
-        <summary><i>02</i><b>PotholeRisk</b><span class="kind">Bengaluru risk engine</span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>A real-time Bayesian road-risk dashboard for Bengaluru that combines live weather, traffic and pothole-density data into a continuously updated driving-risk estimate.</p>
-          <p>The browser only talks to an Express server, which proxies the OpenWeather API with the key injected server-side, so it never reaches the frontend. Next up: CV-based pothole detection and route safety scoring.</p>
-          <ul class="hl"><li>Bayesian risk model</li><li>API keys kept server-side</li><li>Deployed on Render</li></ul>
-          <p class="tags">Node.js · Express · JavaScript · OpenWeather API</p>
-          <p class="links"><a href="https://potholerisk.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/Potholerisk" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
-      <details>
-        <summary><i>03</i><b>AI-SDN Traffic</b><span class="kind">ML-guided routing</span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>A simulated SDN controller that classifies flows, forecasts congestion and reroutes traffic. A Random Forest classifies traffic (voice / video / web / bulk), a regressor forecasts each link's next-interval utilization, and the controller runs Dijkstra with load- and forecast-aware weights.</p>
-          <p>On the same 8-switch partial-mesh topology and traffic, adaptive routing beat static routing across the board.</p>
-          <ul class="hl"><li>~99.7% classification accuracy</li><li>~15% lower average latency</li><li>~39% lower peak utilization</li><li>23 → 0 congested flows</li></ul>
-          <p class="tags">Python · scikit-learn · NetworkX · Mininet</p>
-          <p class="links"><a href="https://github.com/AnushreeKasturi/AI-SDN-Traffic-Management" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
-      <details>
-        <summary><i>04</i><b>Student Performance Predictor</b><span class="kind">Deployed ML app</span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>Predicts final scores from attendance, study hours, internal marks and assignments with a scikit-learn regression model, wrapped in a full app: hashed-password auth, per-user history in SQLite and Plotly dashboards.</p>
-          <ul class="hl"><li>End-to-end: model → app → deploy</li><li>Hashed-password auth</li><li>Interactive Plotly analytics</li></ul>
-          <p class="tags">Python · Flask · scikit-learn · SQLite · Plotly</p>
-          <p class="links"><a href="https://student-performance-predictor-1mlt.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/student-performance-predictor" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
-      <details>
-        <summary><i>05</i><b>Heritage Explorer</b><span class="kind">Virtual museum</span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>An interactive virtual museum for five of India's best-known museums (CSMVS Mumbai, Victoria Memorial, the Indian Museum, Government Museum Chennai and Salar Jung), with galleries, a ticket-booking flow and dark mode.</p>
-          <ul class="hl"><li>5 museums, themed per museum</li><li>Ticket-booking simulation</li><li>Responsive + dark mode</li></ul>
-          <p class="tags">HTML · CSS · JavaScript</p>
-          <p class="links"><a href="https://virtual-museum-explorer.onrender.com" target="_blank" rel="noopener">live ↗</a><a href="https://github.com/AnushreeKasturi/virtual-museum-explorer" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
-      <details>
-        <summary><i>06</i><b>Startup Survival × News Sentiment</b><span class="kind">Big-data research <em>in progress</em></span><span class="yr">2026</span></summary>
-        <div class="body">
-          <p>Does public news sentiment about a startup improve survival prediction beyond funding data alone? A 2×2 experiment: logistic regression vs. SVM, each with financial-only and financial + sentiment features. Only results from real runs get reported.</p>
-          <p class="tags">Scala · Apache Spark · Hive · MLlib · HDFS</p>
-          <p class="links"><a href="https://github.com/AnushreeKasturi/bda_endsem" target="_blank" rel="noopener">code ↗</a></p>
-        </div>
-      </details>
-
+  <div class="band"></div>
+  <section id="now">
+    <h2>Now</h2>
+    <p class="note" id="now-note">what's on my plate this semester</p>
+    <div class="segmented" role="tablist" aria-label="Now">
+      <span class="thumb" aria-hidden="true"></span>
+      <button role="tab" aria-selected="true" aria-controls="p-sem" data-note="what's on my plate this semester">this semester</button>
+      <button role="tab" aria-selected="false" aria-controls="p-log" data-note="dated milestones, newest first" tabindex="-1">log</button>
     </div>
-  </section>
 
-  <section class="row" id="experience">
-    <h2 class="label"><i>03</i>experience</h2>
-    <ol class="timeline">
-      <li><span class="when">2024 – 2028</span><div><b>B.Tech, Computer Science</b><span class="org">Amrita School of Engineering, Bengaluru · CGPA 9.12</span></div></li>
-      <li><span class="when">Jul 2026</span><div><b>Software Engineering Job Simulation</b><span class="org">JPMorgan Chase &amp; Co. · Forage</span><p>Kafka integration, H2 persistence and a REST API controller.</p></div></li>
-      <li><span class="when">Feb 2026</span><div><b>Generative AI in Action</b><span class="org">IBM SkillsBuild</span><p>LLMs and retrieval-augmented generation in real-world patterns.</p></div></li>
-      <li><span class="when">2026</span><div><b>Python</b><span class="org">Kaggle</span></div></li>
-      <li><span class="when">Aug 2025</span><div><b>5th place, The Night Shift Startathon</b><span class="org">ACE &amp; AMAL Club, Amrita</span></div></li>
-      <li><span class="when">2022 – 2024</span><div><b>High School, Computer Science</b><span class="org">The Amaatra Academy · 90.4%</span></div></li>
+    <div id="p-sem" role="tabpanel" class="groups">
+      <div><h3>Building</h3><ul>
+        <li><span>Startup Survival × News Sentiment</span><span class="mute">, a Scala + Spark pipeline</span></li>
+      </ul></div>
+      <div><h3>Learning</h3><ul>
+        <li><span>LLM agents</span><span class="mute">, with LangGraph</span></li>
+        <li><span>Distributed data</span><span class="mute">, Spark and Hive</span></li>
+        <li><span>Event-driven backends</span><span class="mute">, Kafka</span></li>
+      </ul></div>
+      <div><h3>Next</h3><ul>
+        <li><span>CV pothole detection</span><span class="mute">, for PotholeRisk</span></li>
+        <li><span>Route safety scoring</span><span class="mute">, for PotholeRisk</span></li>
+      </ul></div>
+      <div><h3>Open to</h3><ul>
+        <li><span>SWE / ML internships</span></li>
+        <li><span>Hackathon teams</span></li>
+        <li><span>Open-source collaborations</span></li>
+      </ul></div>
+    </div>
+
+    <ol id="p-log" role="tabpanel" class="log" hidden>
+      <li><time>Jul 2026</time><div><b>Software Engineering Job Simulation</b><span>JPMorgan Chase &amp; Co. · Forage. Kafka, H2 persistence and a REST API controller</span></div></li>
+      <li><time>Feb 2026</time><div><b>Generative AI in Action</b><span>IBM SkillsBuild. LLMs and retrieval-augmented generation</span></div></li>
+      <li><time>2026</time><div><b>Python</b><span>Kaggle</span></div></li>
+      <li><time>Aug 2025</time><div><b>5th place, The Night Shift Startathon</b><span>ACE &amp; AMAL Club, Amrita</span></div></li>
+      <li><time>2024</time><div><b>Started B.Tech CSE</b><span>Amrita School of Engineering, Bengaluru · CGPA 9.12</span></div></li>
+      <li><time>2022</time><div><b>High School, Computer Science</b><span>The Amaatra Academy · 90.4%</span></div></li>
     </ol>
   </section>
 
-  <section class="row" id="activity" hidden>
-    <h2 class="label"><i>04</i>activity</h2>
-    <div>
-      <div class="heat" id="heat" role="img"></div>
-      <p class="heat-cap" id="heat-cap"></p>
+  <div class="band"></div>
+  <section id="stack">
+    <h2>Stack</h2>
+    <div class="stack">
+      <div><h3>languages</h3><p><span>Python</span><span>Java</span><span>C</span><span>JavaScript</span><span>SQL</span><span>Scala</span></p></div>
+      <div><h3>ai / ml</h3><p><span>scikit-learn</span><span>LangChain</span><span>LangGraph</span><span>LlamaIndex</span><span>Ollama</span><span>vLLM</span><span>Gradio</span><span>Streamlit</span><span>W&amp;B</span></p></div>
+      <div><h3>backend &amp; data</h3><p><span>Flask</span><span>Node.js</span><span>Express</span><span>Spring Boot</span><span>Kafka</span><span>Spark</span><span>MySQL</span><span>SQLite</span></p></div>
+      <div><h3>web &amp; tools</h3><p><span>React</span><span>HTML / CSS</span><span>Git</span><span>Postman</span><span>Render</span><span>Vercel</span><span>Claude Code</span><span>MCP</span></p></div>
     </div>
   </section>
 
-  <section class="row" id="now">
-    <h2 class="label"><i>05</i>now</h2>
-    <dl class="skills">
-      <div><dt>Building</dt><dd>A Scala + Spark pipeline testing whether public sentiment predicts startup survival</dd></div>
-      <div><dt>Learning</dt><dd>LLM agents with LangGraph, Spark &amp; Hive, Kafka and event-driven backends</dd></div>
-      <div><dt>Open to</dt><dd>SWE / ML internships, hackathon teams, open-source collaborations</dd></div>
-    </dl>
+  <div class="band"></div>
+  <section id="activity">
+    <h2>Activity</h2>
+    <p class="note">GitHub contributions, live</p>
+    <div class="heat-wrap"><div class="heat" id="heat" role="img" aria-label="GitHub contribution calendar"></div></div>
+    <p class="heat-cap" id="heat-cap">loading…</p>
   </section>
 
-  <section class="contact" id="contact">
-    <p class="label"><i>06</i>contact</p>
-    <a class="email" href="mailto:anushree.kasturi06@gmail.com">anushree.kasturi06<wbr>@gmail.com</a>
+  <div class="band"></div>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p class="note">email is the fastest way to reach me</p>
+    <p class="status">Open to SWE / ML internships.</p>
+    <div class="mail">
+      <a href="mailto:anushree.kasturi06@gmail.com">anushree.kasturi06@gmail.com</a>
+      <button id="copy" class="chip" aria-live="polite">copy</button>
+    </div>
+    <p class="note" style="margin-top:32px">// here are my socials</p>
     <ul class="socials">
-      <li><a href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub ↗</a></li>
-      <li><a href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn ↗</a></li>
-      <li><a href="https://leetcode.com/u/AnushreeKasturi/" target="_blank" rel="noopener">LeetCode ↗</a></li>
-      <li><a href="https://huggingface.co/Anushree24" target="_blank" rel="noopener">Hugging Face ↗</a></li>
-      <li><a href="https://x.com/Anushree_kastur" target="_blank" rel="noopener">X ↗</a></li>
+      <li><a href="https://github.com/AnushreeKasturi" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/anushree-kasturi/" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="https://leetcode.com/u/AnushreeKasturi/" target="_blank" rel="noopener">LeetCode</a></li>
+      <li><a href="https://huggingface.co/Anushree24" target="_blank" rel="noopener">Hugging Face</a></li>
+      <li><a href="https://x.com/Anushree_kastur" target="_blank" rel="noopener">X</a></li>
     </ul>
   </section>
-</main>
 
-<footer class="foot wrap">
-  <span>© 2026 Anushree Kasturi</span>
-  <a href="#top">back to top ↑</a>
-</footer>
+  <div class="band"></div>
+  <footer>
+    <p class="mono mute">© 2026 Anushree Kasturi · Bengaluru · <span id="clock">IST</span></p>
+    <a class="mono" href="#top">back to top ↑</a>
+  </footer>
+</main>
 
 <script src="main.js"></script>
 </body>
